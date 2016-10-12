@@ -10,7 +10,11 @@
 module uart_test_tb();
 
 //-- Simulation time: 1us (10 * 1ns)
-parameter DURATION = 10;
+// parameter DURATION = 10;
+parameter N = 32;
+parameter Ndiv4log2 = 3;
+
+
 
 //-- Clock signal. It is not used in this simulation
 reg clk = 0;
@@ -21,18 +25,21 @@ reg rx_valid;
 reg [7:0] rx_byte;
 
 // outputs of test are wire type
-wire [15:0] tx_bytes;
+wire [N-1:0] tx_bytes;
 wire tx_valid;
 
 
 //Instantiate the unit to test
-serial_to_parallel stp (
+serial_to_parallel #(
+  .N(N),
+  .Ndiv4log2(Ndiv4log2))
+stp (
   .iCE_CLK(clk),
   .rx_valid(rx_valid),
   .rx_byte(rx_byte),
   .tx_bytes(tx_bytes),
   .tx_valid(tx_valid)
-  );
+);
 
 
 initial begin
@@ -42,17 +49,30 @@ initial begin
 
   @(negedge clk);
   rx_valid = 1;
-  rx_byte = 8'hA;
-  $display("rx_byte: %x", rx_byte);
-  $display("loading A into the register");
+  rx_byte = 8'hAA;
+  $display("loading AA into the register");
+  $display ("output: %x, tx_valid %b", tx_bytes, tx_valid);
 
   @(negedge clk);
   rx_valid = 1;
-  rx_byte = 8'hB;
+  rx_byte = 8'hBB;
+  $display("loading BB into the register");
+  $display ("output: %x, tx_valid %b", tx_bytes, tx_valid);
 
-  $display("loading B into the register");
   @(negedge clk);
-  $display ("output: %x, tx_valid %x", tx_bytes, tx_valid);
+  rx_valid = 1;
+  rx_byte = 8'hCC;
+  $display("loading CC into the register");
+  $display ("output: %x, tx_valid %b", tx_bytes, tx_valid);
+
+  @(negedge clk);
+  rx_valid = 1;
+  rx_byte = 8'hDD;
+  $display("loading DDinto the register");
+  $display ("output: %x, tx_valid %b", tx_bytes, tx_valid);
+
+  @(negedge clk);
+  $display ("output: %x, tx_valid %b", tx_bytes, tx_valid);
 
 
   //-- File were to store the simulation results
