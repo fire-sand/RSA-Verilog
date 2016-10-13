@@ -28,8 +28,8 @@ module top(
 	LED3,
 	LED4
 	);
-	parameter N = 16;
-	parameter Ndiv4log2 = 2;
+	parameter N = 32;
+	parameter Ndiv4log2 = 3;
 
 	input iCE_CLK;
 	input RS232_Rx_TTL;

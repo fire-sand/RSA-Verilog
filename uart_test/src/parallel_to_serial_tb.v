@@ -51,37 +51,109 @@ initial begin
   is_transmitting = 0;
 
 
+  // @(negedge clk);
+  // rx_valid = 1;
+  // rx_bytes = 32'hDDCCBBAA;
+  //
+  // @(negedge clk);
+  // should be DD
+  // $display(">>>>> tx_byte: %x tx_valid: %b", tx_byte, tx_valid);
+  // is_transmitting = 0;
+  //
+  // @(negedge clk);
+  // // since is_transmitting is high should not have advanced to next byte and
+  // // tx_valid should be 0
+  // $display(">>>>> tx_byte: %x tx_valid: %b", tx_byte, tx_valid);
+  // is_transmitting = 0;
+  //
+  // @(negedge clk);
+  // // should be CC
+  // $display(">>>>> tx_byte: %x tx_valid: %b", tx_byte, tx_valid);
+  //
+  // @(negedge clk);
+  // // should be BB
+  // $display(">>>>> tx_byte: %x tx_valid: %b", tx_byte, tx_valid);
+  //
+  // @(negedge clk);
+  // // should be AA
+  // $display(">>>>> tx_byte: %x tx_valid: %b", tx_byte, tx_valid);
+  //
+  // @(negedge clk);
+  // // should be tx_valid = 0 because we already went through all the btis
+  // $display(">>>>> tx_byte: %x tx_valid: %b", tx_byte, tx_valid);
+
+  $display("\n\n=================================\n\n");
+
   @(negedge clk);
   rx_valid = 1;
   rx_bytes = 32'hDDCCBBAA;
-
-  @(negedge clk);
-  // should be AA
-  $display(">>>>> tx_byte: %x tx_valid: %b", tx_byte, tx_valid);
-  is_transmitting = 1;
-
-  @(negedge clk);
-  // since is_transmitting is high should not have advanced to next byte and
-  // tx_valid should be 0
-  $display(">>>>> tx_byte: %x tx_valid: %b", tx_byte, tx_valid);
-  is_transmitting = 0;
-
-  @(negedge clk);
-  // should be BB
-  $display(">>>>> tx_byte: %x tx_valid: %b", tx_byte, tx_valid);
-
-  @(negedge clk);
-  // should be CC
-  $display(">>>>> tx_byte: %x tx_valid: %b", tx_byte, tx_valid);
 
   @(negedge clk);
   // should be DD
   $display(">>>>> tx_byte: %x tx_valid: %b", tx_byte, tx_valid);
 
   @(negedge clk);
-  // should be tx_valid = 0 because we already went through all the btis
+  // should be not valid
   $display(">>>>> tx_byte: %x tx_valid: %b", tx_byte, tx_valid);
 
+  @(negedge clk);
+  // should be not valid
+  $display(">>>>> tx_byte: %x tx_valid: %b", tx_byte, tx_valid);
+  is_transmitting = 1;
+
+  @(negedge clk);
+  // should be not valid
+  $display(">>>>> tx_byte: %x tx_valid: %b", tx_byte, tx_valid);
+  $display("falling edge now");
+  is_transmitting = 0;
+
+  @(negedge clk);
+  // should be  CC
+  $display(">>>>> tx_byte: %x tx_valid: %b", tx_byte, tx_valid);
+  is_transmitting = 0;
+
+  @(negedge clk);
+  // should be not valid
+  $display(">>>>> tx_byte: %x tx_valid: %b", tx_byte, tx_valid);
+
+  @(negedge clk);
+  // should be not valid
+  $display(">>>>> tx_byte: %x tx_valid: %b", tx_byte, tx_valid);
+  is_transmitting = 1;
+
+  @(negedge clk);
+  // should be not valid
+  $display(">>>>> tx_byte: %x tx_valid: %b", tx_byte, tx_valid);
+  $display("falling edge now");
+  is_transmitting = 0;
+
+  @(negedge clk);
+  // should be  BB
+  $display(">>>>> tx_byte: %x tx_valid: %b", tx_byte, tx_valid);
+  is_transmitting = 0;
+  @(negedge clk);
+  // should be not valid
+  $display(">>>>> tx_byte: %x tx_valid: %b", tx_byte, tx_valid);
+
+  @(negedge clk);
+  // should be not valid
+  $display(">>>>> tx_byte: %x tx_valid: %b", tx_byte, tx_valid);
+  is_transmitting = 1;
+
+  @(negedge clk);
+  // should be not valid
+  $display(">>>>> tx_byte: %x tx_valid: %b", tx_byte, tx_valid);
+  $display("falling edge now");
+  is_transmitting = 0;
+
+  @(negedge clk);
+  // should be  AA
+  $display(">>>>> tx_byte: %x tx_valid: %b", tx_byte, tx_valid);
+  is_transmitting = 0;
+
+  @(negedge clk);
+  // should be  done
+  $display(">>>>> tx_byte: %x tx_valid: %b", tx_byte, tx_valid);
 
 
   //-- File were to store the simulation results

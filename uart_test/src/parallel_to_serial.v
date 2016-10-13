@@ -30,7 +30,7 @@ module parallel_to_serial (
   //local data
   reg [N-1:0] save_bytes;
   wire [7:0] last_byte;
-  assign last_byte = save_bytes[7:0];
+  assign last_byte = save_bytes[N-1:N-8];
   reg stall;
   initial stall = 0;
 	//initial tx_bytes = N'b0;
@@ -39,8 +39,8 @@ module parallel_to_serial (
     // recieved new data to chunk out
   	if (rx_valid && count == 0) begin
       count <= 1;
-      save_bytes <= rx_bytes >> 4'd8;
-      tx_byte <= rx_bytes[7:0];
+      save_bytes <= rx_bytes << 4'd8;
+      tx_byte <= rx_bytes[N-1:N-8];
       tx_valid <= 1'b1;
       stall <= 1'b1;
     end
@@ -48,14 +48,11 @@ module parallel_to_serial (
     else if (!is_transmitting && !count[Ndiv4log2-1] && count != 0 && stall == 0)begin
       tx_byte <= last_byte;
       tx_valid <= 1'b1;
-      save_bytes <= save_bytes >> 4'd8;
+      save_bytes <= save_bytes << 4'd8;
       count <= count + 1'b1;
       stall = 1'b1;
   	end else begin
       tx_valid <= 1'b0;
-      if(!is_transmitting) begin
-        count = 0;
-      end
       if(count[Ndiv4log2-1]) begin
         count = 0;
       end
@@ -64,6 +61,7 @@ module parallel_to_serial (
   end
 
   always @(negedge is_transmitting) begin
+    $display("no more stalling");
     stall = 1'b0;
   end
 endmodule
