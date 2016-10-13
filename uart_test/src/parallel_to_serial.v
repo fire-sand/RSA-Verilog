@@ -33,9 +33,16 @@ module parallel_to_serial (
   assign last_byte = save_bytes[N-1:N-8];
   reg stall;
   initial stall = 0;
+  reg old_is_transmitting;
 	//initial tx_bytes = N'b0;
   initial tx_valid = 1'b1;
 	always @(posedge iCE_CLK) begin
+    if(old_is_transmitting & !is_transmitting) begin
+      stall = 0;
+    end
+    old_is_transmitting = is_transmitting;
+
+
     // recieved new data to chunk out
   	if (rx_valid && count == 0) begin
       count <= 1;
@@ -60,8 +67,4 @@ module parallel_to_serial (
     $display("count: %b", count);
   end
 
-  always @(negedge is_transmitting) begin
-    $display("no more stalling");
-    stall = 1'b0;
-  end
 endmodule
