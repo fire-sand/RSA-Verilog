@@ -7,7 +7,7 @@
 `default_nettype none
 `timescale 1 ns / 100 ps
 
-module uart_test_tb();
+module serial_to_parallel_tb();
 
 //-- Simulation time: 1us (10 * 1ns)
 // parameter DURATION = 10;
@@ -72,6 +72,11 @@ initial begin
   $display ("output: %x, tx_valid %b", tx_bytes, tx_valid);
 
   @(negedge clk);
+  rx_valid = 0;
+  $display("Output should be valid now");
+  $display ("output: %x, tx_valid %b", tx_bytes, tx_valid);
+  @(negedge clk);
+  $display("Output should done now");
   $display ("output: %x, tx_valid %b", tx_bytes, tx_valid);
 
 

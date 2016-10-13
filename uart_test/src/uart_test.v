@@ -28,6 +28,9 @@ module top(
 	LED3,
 	LED4
 	);
+	parameter N = 16;
+	parameter Ndiv4log2 = 2;
+
 	input iCE_CLK;
 	input RS232_Rx_TTL;
 	output RS232_Tx_TTL;
@@ -37,6 +40,7 @@ module top(
 	output LED3;
 	output LED4;
 
+	// UART wires
 	wire reset = 0;
 	reg transmit;
 	reg [7:0] tx_byte;
@@ -46,8 +50,15 @@ module top(
 	wire is_transmitting;
 	wire recv_error;
 
-	assign LED4 = recv_error;
-	assign {LED3, LED2, LED1, LED0} = rx_byte[7:4];
+	// serial_to_parallel wires
+	wire [N-1:0] stp_output_bus;
+	wire stp_output_valid;
+
+
+	assign LED4 = is_transmitting;
+	//assign {LED3, LED2, LED1, LED0} = rx_byte[7:4];
+	assign LED3 = is_transmitting;
+	assign LED2 = transmit;
 
 	uart #(
 		.baud_rate(9600),                 // The baud rate in kilobits/s
@@ -67,12 +78,35 @@ module top(
 		.recv_error(recv_error)           // Indicates error in receiving packet.
 	);
 
-	always @(posedge iCE_CLK) begin
-		if (received) begin
-			tx_byte <= rx_byte;
-			transmit <= 1;
-		end else begin
-			transmit <= 0;
-		end
-	end
+	serial_to_parallel #(
+		.N(N),
+		.Ndiv4log2(Ndiv4log2),
+	) stp (
+	  .iCE_CLK(iCE_CLK),
+		.rx_valid(received),
+		.rx_byte(rx_byte),
+		.tx_bytes(stp_output_bus),
+		.tx_valid(stp_output_valid)
+	);
+
+	parallel_to_serial #(
+		.N(N),
+		.Ndiv4log2(Ndiv4log2),
+	) pts (
+	  .iCE_CLK(iCE_CLK),
+		.rx_valid(stp_output_valid),
+		.rx_bytes(stp_output_bus),
+		.is_transmitting(is_transmitting),
+		.tx_byte(tx_byte),
+		.tx_valid(transmit)
+	);
+
+	// always @(posedge iCE_CLK) begin
+	// 	if (received) begin
+	// 		tx_byte <= rx_byte;
+	// 		transmit <= 1;
+	// 	end else begin
+	// 		transmit <= 0;
+	// 	end
+	// end
 endmodule
