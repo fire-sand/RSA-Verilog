@@ -1,6 +1,6 @@
 `default_nettype none
 module serial_to_parallel (
-  iCE_CLK,
+  clk,
 	rx_valid,
 	rx_byte,
 	tx_bytes,
@@ -10,7 +10,7 @@ module serial_to_parallel (
   parameter Ndiv4log2 = 3;
 
 	// IO
-	input iCE_CLK;
+	input clk;
 	input rx_valid;
 	input [7:0] rx_byte;
 	output [N-1:0] tx_bytes;
@@ -30,7 +30,7 @@ module serial_to_parallel (
 	assign shifted = tx_bytes << 4'd8;
 	assign ored = shifted | rx_byte;
 	// if it is valid then assign it to the register
-	always @(posedge iCE_CLK) begin
+	always @(posedge clk) begin
     $display("N = %d", N);
 
     //$display("rd_valid: %x", rx_valid);

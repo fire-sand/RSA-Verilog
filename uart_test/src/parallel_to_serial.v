@@ -1,6 +1,6 @@
 `default_nettype none
 module parallel_to_serial (
-  iCE_CLK,
+  clk,
 	rx_valid,
 	rx_bytes,
   is_transmitting,
@@ -14,7 +14,7 @@ module parallel_to_serial (
   parameter Ndiv4log2 = 2;
 
 	// IO
-	input iCE_CLK;
+	input clk;
 	input rx_valid;
 	input [N-1:0] rx_bytes;
   input is_transmitting;
@@ -36,7 +36,7 @@ module parallel_to_serial (
   reg old_is_transmitting;
 	//initial tx_bytes = N'b0;
   initial tx_valid = 1'b1;
-	always @(posedge iCE_CLK) begin
+	always @(posedge clk) begin
     if(old_is_transmitting & !is_transmitting) begin
       stall = 0;
     end

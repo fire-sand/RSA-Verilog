@@ -35,7 +35,7 @@ parallel_to_serial #(
   .N(N),
   .Ndiv4log2(Ndiv4log2))
 stp (
-  .iCE_CLK(clk),
+  .clk(clk),
   .rx_valid(rx_valid),
   .rx_bytes(rx_bytes),
   .is_transmitting(is_transmitting),

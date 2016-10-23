@@ -82,7 +82,7 @@ module top(
 		.N(N),
 		.Ndiv4log2(Ndiv4log2),
 	) stp (
-	  .iCE_CLK(iCE_CLK),
+	  .clk(iCE_CLK),
 		.rx_valid(received),
 		.rx_byte(rx_byte),
 		.tx_bytes(stp_output_bus),
@@ -93,7 +93,7 @@ module top(
 		.N(N),
 		.Ndiv4log2(Ndiv4log2),
 	) pts (
-	  .iCE_CLK(iCE_CLK),
+	  .clk(iCE_CLK),
 		.rx_valid(stp_output_valid),
 		.rx_bytes(stp_output_bus),
 		.is_transmitting(is_transmitting),
@@ -101,7 +101,7 @@ module top(
 		.tx_valid(transmit)
 	);
 
-	// always @(posedge iCE_CLK) begin
+	// always @(posedge clk) begin
 	// 	if (received) begin
 	// 		tx_byte <= rx_byte;
 	// 		transmit <= 1;

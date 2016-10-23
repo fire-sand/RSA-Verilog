@@ -34,7 +34,7 @@ serial_to_parallel #(
   .N(N),
   .Ndiv4log2(Ndiv4log2))
 stp (
-  .iCE_CLK(clk),
+  .clk(clk),
   .rx_valid(rx_valid),
   .rx_byte(rx_byte),
   .tx_bytes(tx_bytes),
