@@ -4,3 +4,11 @@ serial_to_parallel:
 parallel_to_serial:
 	iverilog -o .pioenvs/icestick/parallel_to_serial_tb.out src/parallel_to_serial.v src/parallel_to_serial_tb.v
 	.pioenvs/icestick/parallel_to_serial_tb.out
+
+shift_add_mult4:
+	iverilog -o .pioenvs/icestick/shift_add_mult4_tb.out src/shift_add_mult4.v src/shift_add_mult4_tb.v
+	.pioenvs/icestick/shift_add_mult4_tb.out
+
+shift_add_mult4_lut:
+	yosys -p "synth_ice40 -blif ./test.blif" src/shift_add_mult4.v
+	rm ./test.blif
