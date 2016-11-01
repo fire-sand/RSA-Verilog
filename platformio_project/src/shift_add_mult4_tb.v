@@ -10,6 +10,7 @@ always #10 clk = ~clk; // invert clock every 10ns
 reg [3:0] a;
 reg [3:0] b;
 
+// outputs are wire
 wire [7:0] p;
 
 shift_add_mult4 sam (
