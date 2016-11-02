@@ -12,10 +12,11 @@ module mon_prod (
   // B = 2 ^ p
   localparam  Beta = 4;
   localparam  p = 2;
-  localparam  IDLE = 1'b0;
-  localparam  CALC = 1'b1;
+  localparam  IDLE = 2'b0;
+  localparam  CALC = 2'b1;
+  localparam  CALC2 = 2'd2;
   // width of the numbers being multiplied
-  parameter bitLen = 64; //
+  parameter bitLen = 1024; //
   parameter countWidth = 4;
 
 
@@ -39,7 +40,7 @@ module mon_prod (
   reg [bitLen-1:0] A_reg;
   reg [bitLen-1:0] B_reg;
   reg [bitLen-1:0] M_reg;
-  reg state;
+  reg [1:0]state;
   initial B_reg = {bitLen{1'b1}};
   initial state = IDLE;
 
@@ -95,8 +96,12 @@ module mon_prod (
         p0 = P[p-1:0];
         $display("p0: %d", p0);
         qt = (mu * (a0 * bt + p0)); // only 2 bit multiplicaiton
-        qt_i = qt;
         $display("qt: %d", qt);
+        state <= CALC2;
+      end
+
+      CALC2: begin
+        $display("--Calc2--");
         $display("A_bt: %d", A_bt);
         $display("M_qt: %d", M_qt);
         P = (A_bt + P + M_qt) >> p; // TODO need to split up over multiple clocks
@@ -105,6 +110,8 @@ module mon_prod (
         $display("count: %d", count);
         if (stop) begin
           state <= IDLE;
+        end else begin
+          state <= CALC;
         end
       end
     endcase
