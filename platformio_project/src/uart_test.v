@@ -30,6 +30,8 @@ module top(
 	);
 	parameter N = 32;
 	parameter Ndiv4log2 = 3;
+	parameter bitLen = 64; //
+  parameter log2BitLendiv4 = 4;
 
 	input iCE_CLK;
 	input RS232_Rx_TTL;
@@ -100,7 +102,6 @@ module top(
 		.tx_byte(tx_byte),
 		.tx_valid(transmit)
 	);
-
 	// always @(posedge clk) begin
 	// 	if (received) begin
 	// 		tx_byte <= rx_byte;

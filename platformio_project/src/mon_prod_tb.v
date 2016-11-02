@@ -4,6 +4,7 @@
 module mon_prod_tb();
 
 parameter bitLen = 64;
+parameter countWidth = 5;
 
 
 reg clk = 0;
@@ -15,6 +16,7 @@ reg start;
 reg [bitLen-1:0] A;
 reg [bitLen-1:0] B;
 reg [bitLen-1:0] M;
+reg
 
 // outputs are wire
 wire stop;

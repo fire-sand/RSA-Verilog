@@ -5,6 +5,7 @@ module mon_prod (
   A,
   B,
   M,
+  len_bits,
   stop,
   P,
   );
@@ -15,7 +16,7 @@ module mon_prod (
   localparam  CALC = 1'b1;
   // width of the numbers being multiplied
   parameter bitLen = 64; //
-  parameter log2BitLendiv4 = 4;
+  parameter countWidth = 4;
 
 
   input clk;
@@ -45,8 +46,8 @@ module mon_prod (
   reg [p-1:0] p0;
   reg [p-1:0] q0;
   reg [p-1:0] qt;
-  reg [log2BitLendiv4-1:0] count;
-  initial count = 3'd5;
+  reg [countWidth-1:0] count;
+  initial count = len_bits;
 
 
 
