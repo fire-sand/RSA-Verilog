@@ -17,3 +17,6 @@ shift_add_mult4_lut:
 mon_prod:
 	iverilog -o .pioenvs/icestick/mon_prod_tb.out src/mon_prod.v src/mon_prod_tb.v
 	.pioenvs/icestick/mon_prod_tb.out
+mon_prod_lut:
+	yosys -p "synth_ice40 -blif ./test.blif" src/mon_prod.v
+	rm ./test.blif

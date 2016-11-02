@@ -5,7 +5,7 @@ module mon_prod (
   A,
   B,
   M,
-  len_bits,
+  num_words,
   stop,
   P,
   );
@@ -24,6 +24,7 @@ module mon_prod (
   input [bitLen-1:0] A;
   input [bitLen-1:0] B;
   input [bitLen-1:0] M;
+  input [countWidth-1:0] num_words;
 
   output stop;
   output reg [bitLen-1:0] P;
@@ -46,10 +47,8 @@ module mon_prod (
   reg [p-1:0] p0;
   reg [p-1:0] q0;
   reg [p-1:0] qt;
+  reg [p-1:0] qt_i;
   reg [countWidth-1:0] count;
-  initial count = len_bits;
-
-
 
   assign a0 = A[p-1:0];
   assign m0 = M[p-1:0];
@@ -58,6 +57,23 @@ module mon_prod (
               2'd0;
 
   assign stop = !(| count); // stop = 1 if all bits of B are 0
+
+  wire [bitLen+p-2:0] A_bt;
+  shift_add_mult2 #(.bitLen(bitLen))
+    sam1 (
+      .A(A),
+      .B(bt),
+      .P(A_bt)
+      );
+
+  wire [bitLen+p-2:0] M_qt;
+  shift_add_mult2 #(.bitLen(bitLen))
+    sam2 (
+      .A(M),
+      .B(qt),
+      .P(M_qt)
+      );
+
   always @(posedge clk) begin
 
     case (state)
@@ -78,9 +94,12 @@ module mon_prod (
         B_reg = {B_cat, B_reg[bitLen-1:p]};
         p0 = P[p-1:0];
         $display("p0: %d", p0);
-        qt = (mu * (a0 * bt + p0));
+        qt = (mu * (a0 * bt + p0)); // only 2 bit multiplicaiton
+        qt_i = qt;
         $display("qt: %d", qt);
-        P = (A * bt + P + qt * M) >> p; // TODO convert to shift add multiplier
+        $display("A_bt: %d", A_bt);
+        $display("M_qt: %d", M_qt);
+        P = (A_bt + P + M_qt) >> p; // TODO need to split up over multiple clocks
         $display("P: %d", P);
         count = count - 1;
         $display("count: %d", count);
@@ -90,4 +109,27 @@ module mon_prod (
       end
     endcase
   end
-endmodule //
+endmodule
+
+module shift_add_mult2(
+  A,
+  B,
+  P,
+  );
+  localparam  Beta = 4;
+  localparam  p = 2;
+  parameter bitLen = 64;
+
+  input [bitLen-1:0] A;
+  input [p-1:0] B;
+
+  output [bitLen+p-2:0] P;
+
+  wire [bitLen+p-3:0] a_s0;
+  wire [bitLen+p-2:0] a_s1;
+
+  assign a_s0 = B[0] ? A : {bitLen{1'b0}};
+  assign a_s1 = B[1] ? (A << 1) :  {bitLen+p-1{1'b0}};
+
+  assign P = a_s0 + a_s1;
+endmodule

@@ -5,8 +5,6 @@ module mon_prod_tb();
 
 parameter bitLen = 64;
 parameter countWidth = 5;
-
-
 reg clk = 0;
 always #100 clk = ~clk;
 
@@ -16,7 +14,7 @@ reg start;
 reg [bitLen-1:0] A;
 reg [bitLen-1:0] B;
 reg [bitLen-1:0] M;
-reg
+reg [countWidth-1:0] num_words;
 
 // outputs are wire
 wire stop;
@@ -31,6 +29,7 @@ mon_prod #(
   .A(A),
   .B(B),
   .M(M),
+  .num_words(num_words),
   .stop(stop),
   .P(P)
   );
@@ -51,31 +50,6 @@ initial begin
   $display("-- TB");
   $display("P: %d\n", P);
   $display("stop: %d\n", stop);
-
-  // @(negedge clk);
-  // $display("-- TB");
-  // $display("P: %d\n", P);
-  // $display("stop: %d\n", stop);
-  //
-  // @(negedge clk);
-  // $display("-- TB");
-  // $display("P: %d\n", P);
-  // $display("stop: %d\n", stop);
-  //
-  // @(negedge clk);
-  // $display("-- TB");
-  // $display("P: %d\n", P);
-  // $display("stop: %d\n", stop);
-  //
-  // @(negedge clk);
-  // $display("-- TB");
-  // $display("P: %d\n", P);
-  // $display("stop: %d\n", stop);
-  //
-  // @(negedge clk);
-  // $display("-- TB");
-  // $display("P: %d\n", P);
-  // $display("stop: %d\n", stop);
 
   @(posedge stop);
   $display("-- TB");
