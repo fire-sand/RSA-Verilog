@@ -16,7 +16,7 @@ module mon_prod (
   localparam  CALC = 2'b1;
   localparam  CALC2 = 2'd2;
   // width of the numbers being multiplied
-  parameter bitLen = 1024; //
+  parameter bitLen = 64; //
   parameter countWidth = 4;
 
 
