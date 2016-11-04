@@ -1,8 +1,10 @@
 `default_nettype none
 
 `define BITLEN 1024
-`define BETA 4
-`define BETALEN 2
+`define BETA 2
+`define BETALEN 1
+
+`define B_REGLEN 16
 
 module mon_prod (
   clk,
@@ -18,7 +20,8 @@ module mon_prod (
   localparam  p = 2;
   localparam  IDLE = 2'b0;
   localparam  CALC = 2'b1;
-  localparam  CALC2 = 2'd2;
+  localparam  CALC1 = 2'd2;
+  localparam  CALC2 = 2'd3;
   // width of the numbers being multiplied
   // parameter countWidth = 5;
 
@@ -28,50 +31,48 @@ module mon_prod (
   input [`BITLEN-1:0] A;
   input [`BITLEN-1:0] B;
   input [`BITLEN-1:0] M;
-  input [`BITLEN >> 2:0] num_words;
+  input [9:0] num_words;
 
   output stop;
-  output reg [`BITLEN-1:0] P;
-  initial P[`BITLEN-1:0] = {`BITLEN{1'b0}};
+  output reg [`BITLEN + `BETALEN - 1:0] P;
+  initial P = 1025'b0;
 
   wire [`BETALEN-1:0] B_cat;
   assign B_cat = {`BETALEN{1'b0}};
   wire [`BETALEN-1:0] a0;
-  wire [`BETALEN-1:0] m0;
+  // wire [`BETALEN-1:0] m0;
   wire [`BETALEN-1:0] mu;
 
-  reg [`BITLEN-1:0] B_reg;
+  reg [`B_REGLEN-1:0] B_reg;
   reg [1:0]state;
-  initial B_reg = {`BITLEN{1'b1}};
+  initial B_reg = {`B_REGLEN{1'b1}};
   initial state = IDLE;
 
-  reg [`BETALEN-1:0] bt;
+  // reg [`BETALEN-1:0] bt;
   reg [`BETALEN-1:0] p0;
-  reg [`BETALEN-1:0] q0;
-  reg [`BETALEN-1:0] qt;
-  reg [`BETALEN-1:0] qt_i;
-  reg [`BITLEN >> 2:0] count;
+  // reg [`BETALEN-1:0] qt;
+  reg [9:0] count;
 
   assign a0 = A[`BETALEN-1:0];
-  assign m0 = M[`BETALEN-1:0];
-  assign mu = (m0 == 2'd3) ? 2'd1 :
-              (m0 == 2'd1) ? 2'd3 :
-              2'd0;
+  // assign m0 = M[`BETALEN-1:0];
+  // assign mu = (m0 == 2'd3) ? 2'd1 :
+  //             (m0 == 2'd1) ? 2'd3 :
+  //             2'd0;
+  assign mu = M[`BETALEN-1:0];
 
   assign stop = !(| count); // stop = 1 if all bits of B are 0
 
-  wire [`BITLEN+`BETALEN-1:0] A_bt;
-  shift_add_mult2 sam1 (
-      .A(A),
-      .B(bt),
-      .P(A_bt)
-      );
 
-  wire [`BITLEN+`BETALEN-1:0] M_qt;
-  shift_add_mult2 sam2 (
-      .A(M),
-      .B(qt),
-      .P(M_qt)
+  reg [`BITLEN-1:0] big_mult;
+  initial big_mult = `BITLEN'b0;
+  reg [`BETALEN-1:0] small_mult;
+  initial small_mult = `BETALEN'b0;
+  wire [`BITLEN+`BETALEN-1:0] mult_out;
+
+  shift_add_mult2 sam1 (
+      .A(big_mult),
+      .B(small_mult),
+      .P(mult_out)
       );
 
   always @(posedge clk) begin
@@ -87,26 +88,50 @@ module mon_prod (
 
       CALC: begin
         $display("--Calc--");
-        bt = B_reg[`BETALEN-1:0];
-        $display("bt: %d", bt);
-        B_reg = {B_cat, B_reg[`BITLEN-1:`BETALEN]};
-        p0 = P[`BETALEN-1:0];
-        $display("p0: %d", p0);
-        qt = (mu * (a0 * bt + p0)); // only 2 bit multiplicaiton
-        $display("qt: %d", qt);
+
+        // To calculate A * bt for next cycle
+        big_mult <= A;
+        small_mult = B_reg[`BETALEN-1:0];
+        B_reg = {B_cat, B_reg[`B_REGLEN-1:`BETALEN]};
+
+        state <= CALC1;
+      end
+
+      CALC1: begin
+        $display("--Calc1--");
+
+        $display("big_mult: %0d", big_mult);
+        $display("small_mult: %0d", small_mult);
+
+        // mult_out is A * bt
+        P = mult_out + P;
+
+        // To calculate M * qt for next cycle
+        // This is the new qt, only `BETA bit multiplication
+        small_mult <= (mu * (a0 * small_mult + P[`BETALEN-1:0]));
+        big_mult <= M;
+
         state <= CALC2;
       end
 
       CALC2: begin
         $display("--Calc2--");
-        $display("A_bt: %d", A_bt);
-        $display("M_qt: %d", M_qt);
-        P = (A_bt + M_qt + {`BETALEN'd0, P}) >> `BETALEN; // TODO need to split up over multiple clocks
-        $display("P: %d", P);
-        count = count >> 1;
-        $display("count: %d", count);
+
+        // These are set in the previous cycle (CALC1)
+        $display("big_mult: %0d", big_mult);
+        $display("small_mult: %0d", small_mult);
+
+        // mult_out is M * qt
+        P = (P + mult_out) >> `BETALEN;
+        // P = (A_bt + M_qt + {`BETALEN'd0, P}) >> `BETALEN; // TODO need to split up over multiple clocks
+        $display("P: %0d", P);
+
+        count = count - 1;
+        $display("count: %0d", count);
+
         if (stop) begin
-          P = (P < M) ? P : P - M;
+          // Can we avoid this subtraction?!
+          // P = (P < M) ? P : P - M;
           state <= IDLE;
         end else begin
           state <= CALC;
@@ -127,14 +152,14 @@ module shift_add_mult2(
 
   output [`BITLEN+`BETALEN-1:0] P;
 
-  wire [`BITLEN-1:0] a_s0;
-  wire [`BITLEN:0] a_s1;
+  // wire [`BITLEN-1:0] a_s0;
+  // wire [`BITLEN:0] a_s1;
 
-  assign a_s0 = A & {`BITLEN{B[0]}};
-  assign a_s1 = (A & {`BITLEN{B[1]}}) << 1;
+  // assign a_s0 = A & {`BITLEN{B[0]}};
+  // assign a_s1 = (A & {`BITLEN{B[1]}}) << 1;
 
   // assign a_s0 = B[0] ? A : {`BITLEN{1'b0}};
   // assign a_s1 = B[1] ? (A << 1) :  {`BITLEN+1{1'b0}};
 
-  assign P = a_s0 + a_s1;
+  assign P = A & {`BITLEN{B[0]}};
 endmodule

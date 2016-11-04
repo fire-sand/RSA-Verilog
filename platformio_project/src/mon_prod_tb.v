@@ -18,12 +18,10 @@ reg [countWidth-1:0] num_words;
 
 // outputs are wire
 wire stop;
-wire [bitLen-1:0] P;
+wire [bitLen:0] P;
 
 
-mon_prod #(
-  .bitLen(bitLen)
-  ) mp (
+mon_prod mp (
   .clk(clk),
   .start(start),
   .A(A),
@@ -43,6 +41,7 @@ initial begin
   A = 216;
   B = 123;
   M = 253;
+  // M = 311;
 
   start = 1;
 
