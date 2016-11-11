@@ -112,10 +112,7 @@ module top(
 	wire stop;
 	wire [bitLen-1:0] P;
 
-	mon_prod #(
-	  .bitLen(64),
-		.countWidth(log2BitLendiv4)
-	  ) monprod (
+	mon_prod monprod (
 	  .clk(iCE_CLK),
 	  .start(tx_valid),
 	  .A(A),

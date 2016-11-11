@@ -22,8 +22,7 @@ module mon_prod (
   localparam  CALC = 2'b1;
   localparam  CALC1 = 2'd2;
   localparam  CALC2 = 2'd3;
-  // width of the numbers being multiplied
-  // parameter countWidth = 5;
+
 
 
   input clk;
