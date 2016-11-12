@@ -1,6 +1,6 @@
 `default_nettype none
 
-`define BITLEN 1024
+`define BITLEN 64
 `define log_BITLEN 10
 module mon_exp (
   clk,
@@ -10,7 +10,7 @@ module mon_exp (
   e,
   n,
   stop,
-  exp
+  ans
   );
 
   localparam  IDLE = 2'b0;
@@ -25,9 +25,11 @@ module mon_exp (
   input [`BITLEN-1:0] e;
   input [`BITLEN-1:0] n;
 
-  output reg [`BITLEN-1:0] exp;
+  output [`BITLEN-1:0] ans;
   output reg stop;
+  initial stop = 1'b0;
 
+  reg [`BITLEN-1:0] reg_e;
   reg mp_start;
   wire mp_stop;
   reg [`BITLEN-1:0] mp_A;
@@ -44,41 +46,57 @@ module mon_exp (
     .A(mp_A),
     .B(mp_B),
     .M(mp_M),
-    .stop(stop),
-    .P(exp)
+    .stop(mp_stop),
+    .P(ans)
     );
 
   always @(posedge clk) begin
     case (state)
       IDLE: begin
+      $display("exp IDLE");
         if (start) begin
           count <= `log_BITLEN-1;
           mp_A <= x_bar;
           mp_B <= x_bar;
           mp_M <= n;
-          state = e[0] ? CALC1 : CALC;
-          e = e >> 1;
+          state = n[0] ? CALC1 : CALC;
+          mp_start <= 1'b1;
         end
       end
       CALC: begin
-          // x_bar = Nat()._mon_pro(x_bar, x_bar, n_, n_nat)
-          count <= count - 1;
-          mp_A <= exp;
-          mp_B <= exp;
-          state <= e[0] ? CALC1: !(|count) ? CALC2 : CALC;
+          $display("exp CALC");
+          if(mp_stop) begin
+            // x_bar = Nat()._mon_pro(x_bar, x_bar, n_, n_nat)
+            $display("x_bar * x_bar = %d", ans);
+            count <= count - 1;
+            mp_A <= ans;
+            mp_B <= ans;
+            mp_start <= 1;
+            reg_e = reg_e >> 1;
+            state = n[0] ? CALC1: !(|reg_e) ? CALC2 : CALC;
+            $display("state: %d", state);
+          end
             // if ei === 1: then do the next round, else if we are done go to stop
             // else do another round of calculation
       end
       CALC1: begin
-        // x_bar = Nat()._mon_pro(M_bar, x_bar, n_, n_nat)
-        mp_A <= M_bar;
-        mp_B <= exp;
-        state <= !(|count) ? CALC2 : CALC;
+        $display("exp CALC1");
+        if(mp_stop) begin
+          // x_bar = Nat()._mon_pro(M_bar, x_bar, n_, n_nat)
+          $display("M_bar * x_bar = %d", ans);
+          mp_A <= M_bar;
+          mp_B <= ans;
+          mp_start = 1;
+          state <= !(|reg_e) ? CALC2 : CALC;
+          $display("state: %d", state);
+        end
       end
 
-      CALC2: begin:
+      CALC2: begin
+        $display("exp CALC2");
         stop <= 1'b1;
         state <= IDLE;
+      end
     endcase
   end
 endmodule

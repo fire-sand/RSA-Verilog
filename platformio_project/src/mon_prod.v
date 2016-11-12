@@ -1,6 +1,6 @@
 `default_nettype none
 
-`define BITLEN 1024
+`define BITLEN 64
 `define BETA 2
 `define BETALEN 1
 
@@ -79,6 +79,7 @@ module mon_prod (
     case (state)
       IDLE: begin
         if (start) begin
+          $display("starting!");
           B_reg <= B;
           state <= CALC;
           count <= 8; // should be `BITLEN if power of 2, otherwise next highest power of 2
@@ -97,10 +98,10 @@ module mon_prod (
       end
 
       CALC1: begin
-        $display("--Calc1--");
-
-        $display("big_mult: %0d", big_mult);
-        $display("small_mult: %0d", small_mult);
+         $display("--Calc1--");
+        //
+        // $display("big_mult: %0d", big_mult);
+        // $display("small_mult: %0d", small_mult);
 
         // mult_out is A * bt
         P = mult_out + P;
@@ -115,10 +116,10 @@ module mon_prod (
 
       CALC2: begin
         $display("--Calc2--");
-
-        // These are set in the previous cycle (CALC1)
-        $display("big_mult: %0d", big_mult);
-        $display("small_mult: %0d", small_mult);
+        //
+        // // These are set in the previous cycle (CALC1)
+        // $display("big_mult: %0d", big_mult);
+        // $display("small_mult: %0d", small_mult);
 
         // mult_out is M * qt
         P = (P + mult_out) >> `BETALEN;
@@ -126,12 +127,13 @@ module mon_prod (
         $display("P: %0d", P);
 
         count = count - 1;
-        $display("count: %0d", count);
+        // $display("count: %0d", count);
 
         if (stop) begin
           // Can we avoid this subtraction?!
           // P = (P < M) ? P : P - M;
           state <= IDLE;
+          $display("STOP: %d", P);
         end else begin
           state <= CALC;
         end

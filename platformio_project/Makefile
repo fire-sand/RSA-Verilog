@@ -19,4 +19,10 @@ mon_prod:
 	.pioenvs/icestick/mon_prod_tb.out
 
 mon_prod_lut:
-	yosys -p "synth_ice40 -abc2 -blif ./test.blif" src/mon_prod.v
+	yosys -p "synth_ice41 -abc2 -blif ./test.blif" src/mon_prod.v
+
+mon_exp:
+	iverilog -o .pioenvs/icestick/mon_exp_tb.out src/mon_prod.v src/mon_exp.v src/mon_exp_tb.v
+	.pioenvs/icestick/mon_exp_tb.out
+
+

@@ -40,8 +40,8 @@ initial begin
   @(negedge clk);
   A = 216;
   B = 123;
-  M = 253;
-  // M = 311;
+  // M = 253;
+  M = 311;
 
   start = 1;
 
