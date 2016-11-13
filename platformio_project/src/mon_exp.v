@@ -35,7 +35,11 @@ module mon_exp (
 
   //reg [`BITLEN-1:0] reg_e;
   reg mp_start;
+  reg old_mp_start;
+  initial mp_start = 0;
+  initial old_mp_start = 0;
   wire mp_stop;
+  reg old_mp_stop;
   reg [`BITLEN-1:0] mp_A;
   reg [`BITLEN-1:0] mp_B;
   reg [`BITLEN-1:0] mp_M;
@@ -58,45 +62,52 @@ module mon_exp (
   always @(posedge clk) begin
   // $display("mp_stop %d", mp_stop);
   // $display(state);
+    if (old_mp_start && mp_start) begin
+      mp_start = 0;
+    end
+    old_mp_start = mp_start;
+    // $display("new");
     case (state)
-          IDLE: begin
+      IDLE: begin
         if (start) begin
-          $display("exp IDLE: e_idx: ", e_idx);
+          $display("exp IDLE: e_idx: %0d,  e: %0b", e_idx, e);
+
           $display(" %0d * %0d mod %0d", x_bar, x_bar, n);
-          mp_A <= x_bar;
-          mp_B <= x_bar;
-          mp_M <= n;
-          idx <= e_idx-1;
+          mp_A = x_bar;
+          mp_B = x_bar;
+          mp_M = n;
+          idx = e_idx-1;
           state = e[e_idx] ? CALC1 : CALC;
-          mp_start <= 1'b1;
+          mp_start = 1'b1;
         end
       end
       CALC: begin
-          if(mp_stop) begin
+          if(mp_stop && !old_mp_stop) begin
             $display("exp CALC");
             // x_bar = Nat()._mon_pro(x_bar, x_bar, n_, n_nat)
-            $display("M_bar * x_bar  mod n = %0d", ans);
+            $display("(%0d) * (%0d)  mod n = %0d", mp_A, mp_B, ans);
             //stop <= 1; // DEBUG TODO remove
             // count <= count - 1;
-            mp_A <= ans;
-            mp_B <= ans;
+            mp_A = ans;
+            mp_B = ans;
             $display("%0d * %0d mod %0d", ans, ans, n);
-            mp_start <= 1;
+            mp_start = 1;
           //  reg_e = reg_e >> 1;
             state = e[idx] ? CALC1: !(|idx) ? CALC2 : CALC;
+            $display("HELLO state: %0d, e[idx]: %d, idx", state, e[idx], idx);
             idx = idx-1;
-            $display("state: %0d", state);
+
           end
             // if ei === 1: then do the next round, else if we are done go to stop
             // else do another round of calculation
       end
       CALC1: begin
-        if(mp_stop) begin
+        if(mp_stop && !old_mp_stop) begin
           $display("exp CALC1");
           // x_bar = Nat()._mon_pro(M_bar, x_bar, n_, n_nat)
-          $display("x_bar * x_bar mod n = %0d", ans);
-          mp_A <= M_bar;
-          mp_B <= ans;
+          $display("(%0d) * (%0d) mod n = %0d", mp_A, mp_B, ans);
+          mp_A = M_bar;
+          mp_B = ans;
           $display("%0d * %0d mod %0d", M_bar, ans, n);
 
           mp_start = 1;
@@ -106,10 +117,16 @@ module mon_exp (
       end
 
       CALC2: begin
-        $display("exp CALC2");
-        stop <= 1'b1;
-        state <= IDLE;
+        if(mp_stop && !old_mp_stop) begin
+          $display("exp CALC2");
+          stop <= 1'b1;
+          mp_start = 1'b0;
+          $display("calc2 start is set to 0");
+          state <= IDLE;
+        end
       end
+      //TODO missing last of mon_pro(x_bar,1,n)
     endcase
+    old_mp_stop = mp_stop;
   end
 endmodule

@@ -15,7 +15,7 @@ shift_add_mult4_lut:
 	rm ./test.blif
 
 mon_prod:
-	rm .pioenvs/icestick/mon_prod_tb.out
+	rm -f .pioenvs/icestick/mon_prod_tb.out
 	iverilog -o .pioenvs/icestick/mon_prod_tb.out src/mon_prod.v src/mon_prod_tb.v
 	.pioenvs/icestick/mon_prod_tb.out
 

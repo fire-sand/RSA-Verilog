@@ -44,7 +44,7 @@ initial begin
   M_bar = 571;
   x_bar = 435;
   e = 300;
-  e_idx = 5;
+  e_idx = 9;
   n = 589;
   mp_count = 10;
   // M = 311;
@@ -52,10 +52,10 @@ initial begin
   start = 1;
 
 
-  @(negedge clk);
-  $display("-- TB");
-  $display("ans: %0d\n", ans);
-  $display("stop: %0d\n", stop);
+  // @(negedge clk);
+  // $display("-- TB");
+  // $display("ans: %0d\n", ans);
+  // $display("stop: %0d\n", stop);
 
   @(posedge stop);
   $display("-- TB");

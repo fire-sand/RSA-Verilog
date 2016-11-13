@@ -76,42 +76,47 @@ module mon_prod (
       );
 
   always @(posedge clk) begin
-
+    // $display("mon_prod start: %d", start);
+    // $display("start: A: %0d, B: %0d, M: %0d", A, B, M);
     case (state)
       IDLE: begin
         if (start) begin
+          //$display("IDLE> A: %0d, B: %0d, M: %0d", A, B, M);
           B_reg <= B;
           state <= CALC;
+          P <= 1025'b0;
           count <= mp_count; // should be `BITLEN if power of 2, otherwise next highest power of 2
         end
       end
 
       CALC: begin
-        // $display("--Calc--");
+        //$display("--Calc--");
 
         // To calculate A * bt for next cycle
-        big_mult <= A;
+        big_mult = A;
         small_mult = B_reg[`BETALEN-1:0];
         B_reg = {B_cat, B_reg[`B_REGLEN-1:`BETALEN]};
+        // $display("smal_mult set to : %d", small_mult);
 
-        state <= CALC1;
+        state = CALC1;
       end
 
       CALC1: begin
         // $display("--Calc1--");
-        //
+
         // $display("big_mult: %0d", big_mult);
         // $display("small_mult: %0d", small_mult);
 
         // To calculate M * qt for next cycle
         // This is the new qt, only `BETA bit multiplication
-        small_mult <= (mu * (a0 * small_mult + P[`BETALEN-1:0]));
-        big_mult <= M;
-
+        // $display("Mu: %0d, a0: %0d, small_mult %0d, P: %0d", mu, a0, small_mult, P[`BETALEN-1:0]);
+        small_mult = (mu * (a0 * small_mult + P[`BETALEN-1:0]));
+        big_mult = M;
+        // $display("smal_mult set to : %d", small_mult);
         // mult_out is A * bt
         P = mult_out + P;
 
-        state <= CALC2;
+        state = CALC2;
       end
 
       CALC2: begin
@@ -132,7 +137,7 @@ module mon_prod (
         if (stop) begin
           // Can we avoid this subtraction?!
           P = (P < M) ? P : P - M;
-          $display("STOP: %0d", P);
+          // $display("STOP: %d", P);
           state <= IDLE;
         end else begin
           state <= CALC;
