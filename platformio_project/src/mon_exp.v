@@ -15,10 +15,11 @@ module mon_exp (
   ans
   );
 
-  localparam  IDLE = 2'b0;
-  localparam  CALC = 2'b1;
-  localparam  CALC1 = 2'd2;
-  localparam  CALC2 = 2'd3;
+  localparam  IDLE = 3'b0;
+  localparam  CALC = 3'b1;
+  localparam  CALC1 = 3'd2;
+  localparam  CALC2 = 3'd3;
+  localparam  END = 3'd4;
 
   input clk;
   input start;
@@ -43,7 +44,7 @@ module mon_exp (
   reg [`BITLEN-1:0] mp_A;
   reg [`BITLEN-1:0] mp_B;
   reg [`BITLEN-1:0] mp_M;
-  reg [1:0] state;
+  reg [2:0] state;
   initial state = IDLE;
 
   reg [`log_BITLEN-1:0] idx;
@@ -118,10 +119,19 @@ module mon_exp (
 
       CALC2: begin
         if(mp_stop && !old_mp_stop) begin
+          mp_A = ans;
+          mp_B = 1024'b1;
+          mp_start = 1;
+          state = END;
           $display("exp CALC2");
+        end
+      end
+
+      END: begin
+        if(mp_stop && !old_mp_stop) begin
           stop <= 1'b1;
           mp_start = 1'b0;
-          $display("calc2 start is set to 0");
+          $display("END");
           state <= IDLE;
         end
       end
