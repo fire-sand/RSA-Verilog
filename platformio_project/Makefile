@@ -6,7 +6,7 @@ parallel_to_serial:
 	iverilog -o .pioenvs/icestick/parallel_to_serial_tb.out src/parallel_to_serial.v src/parallel_to_serial_tb.v
 	.pioenvs/icestick/parallel_to_serial_tb.out
 
-shift_add_mult4:
+shift_add_mult5:
 	iverilog -o .pioenvs/icestick/shift_add_mult4_tb.out src/shift_add_mult4.v src/shift_add_mult4_tb.v
 	.pioenvs/icestick/shift_add_mult4_tb.out
 
@@ -15,6 +15,7 @@ shift_add_mult4_lut:
 	rm ./test.blif
 
 mon_prod:
+	rm .pioenvs/icestick/mon_prod_tb.out
 	iverilog -o .pioenvs/icestick/mon_prod_tb.out src/mon_prod.v src/mon_prod_tb.v
 	.pioenvs/icestick/mon_prod_tb.out
 
@@ -22,7 +23,6 @@ mon_prod_lut:
 	yosys -p "synth_ice41 -abc2 -blif ./test.blif" src/mon_prod.v
 
 mon_exp:
+	rm -f .pioenvs/icestick/mon_exp_tb.out
 	iverilog -o .pioenvs/icestick/mon_exp_tb.out src/mon_prod.v src/mon_exp.v src/mon_exp_tb.v
 	.pioenvs/icestick/mon_exp_tb.out
-
-

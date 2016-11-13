@@ -1,6 +1,6 @@
 `default_nettype none
 
-`define BITLEN 64
+`define BITLEN 1024
 `define BETA 2
 `define BETALEN 1
 
@@ -12,7 +12,7 @@ module mon_prod (
   A,
   B,
   M,
-  num_words,
+  mp_count,
   stop,
   P,
   );
@@ -22,7 +22,8 @@ module mon_prod (
   localparam  CALC = 2'b1;
   localparam  CALC1 = 2'd2;
   localparam  CALC2 = 2'd3;
-
+  // width of the numbers being multiplied
+  // parameter countWidth = 5;
 
 
   input clk;
@@ -30,7 +31,7 @@ module mon_prod (
   input [`BITLEN-1:0] A;
   input [`BITLEN-1:0] B;
   input [`BITLEN-1:0] M;
-  input [9:0] num_words;
+  input [9:0] mp_count;
 
   output stop;
   output reg [`BITLEN + `BETALEN - 1:0] P;
@@ -79,15 +80,14 @@ module mon_prod (
     case (state)
       IDLE: begin
         if (start) begin
-          $display("starting!");
           B_reg <= B;
           state <= CALC;
-          count <= 8; // should be `BITLEN if power of 2, otherwise next highest power of 2
+          count <= mp_count; // should be `BITLEN if power of 2, otherwise next highest power of 2
         end
       end
 
       CALC: begin
-        $display("--Calc--");
+        // $display("--Calc--");
 
         // To calculate A * bt for next cycle
         big_mult <= A;
@@ -98,42 +98,42 @@ module mon_prod (
       end
 
       CALC1: begin
-         $display("--Calc1--");
+        // $display("--Calc1--");
         //
         // $display("big_mult: %0d", big_mult);
         // $display("small_mult: %0d", small_mult);
-
-        // mult_out is A * bt
-        P = mult_out + P;
 
         // To calculate M * qt for next cycle
         // This is the new qt, only `BETA bit multiplication
         small_mult <= (mu * (a0 * small_mult + P[`BETALEN-1:0]));
         big_mult <= M;
 
+        // mult_out is A * bt
+        P = mult_out + P;
+
         state <= CALC2;
       end
 
       CALC2: begin
-        $display("--Calc2--");
-        //
-        // // These are set in the previous cycle (CALC1)
+        // $display("--Calc2--");
+
+        // These are set in the previous cycle (CALC1)
         // $display("big_mult: %0d", big_mult);
         // $display("small_mult: %0d", small_mult);
 
         // mult_out is M * qt
         P = (P + mult_out) >> `BETALEN;
         // P = (A_bt + M_qt + {`BETALEN'd0, P}) >> `BETALEN; // TODO need to split up over multiple clocks
-        $display("P: %0d", P);
+        // $display("P: %0d", P);
 
         count = count - 1;
         // $display("count: %0d", count);
 
         if (stop) begin
           // Can we avoid this subtraction?!
-          // P = (P < M) ? P : P - M;
+          P = (P < M) ? P : P - M;
+          $display("STOP: %0d", P);
           state <= IDLE;
-          $display("STOP: %d", P);
         end else begin
           state <= CALC;
         end

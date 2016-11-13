@@ -3,8 +3,7 @@
 
 module mon_prod_tb();
 
-parameter bitLen = 64;
-parameter countWidth = 5;
+parameter bitLen = 1024;
 reg clk = 0;
 always #100 clk = ~clk;
 
@@ -14,7 +13,7 @@ reg start;
 reg [bitLen-1:0] A;
 reg [bitLen-1:0] B;
 reg [bitLen-1:0] M;
-reg [countWidth-1:0] num_words;
+reg [9:0] mp_count;
 
 // outputs are wire
 wire stop;
@@ -27,7 +26,7 @@ mon_prod mp (
   .A(A),
   .B(B),
   .M(M),
-  .num_words(num_words),
+  .mp_count(mp_count),
   .stop(stop),
   .P(P)
   );
@@ -38,10 +37,16 @@ initial begin
 
 
   @(negedge clk);
-  A = 216;
-  B = 123;
-  // M = 253;
-  M = 311;
+  // A = 216;
+  // B = 123;
+  // // M = 253;
+  // M = 589;
+  // mp_count = 10;
+
+  A = 571;
+  B = 435;
+  M = 589;
+  mp_count = 10;
 
   start = 1;
 
