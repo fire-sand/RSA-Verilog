@@ -130,15 +130,15 @@ module mon_prod (
       end
 
       LOADA1: begin
-        A <= {{DBITS-1{1'b0}}, rd_data};
-        B <= {{DBITS-1{1'b0}}, rd_data};
+        A[DBITS-1:0] <= rd_data;
+        B[DBITS-1:0] <= rd_data;
         rd_addr <= 2;
         state <= LOADA2;
       end
 
       LOADA2: begin
-        A <= {rd_data, A[DBITS-1:0]};
-        B <= (op_code == OPX1) ? {{`BITLEN-2{1'b0}}, 1'b1} : {rd_data, B[DBITS-1:0]};
+        A[`BITLEN-1:DBITS] <= rd_data;
+        B[`BITLEN-1:DBITS] <= (op_code == OPX1) ? {{511{1'b0}}, 1'b1} : rd_data; // TODO fix me
         rd_addr <= (op_code == OPXM) ? 3 : 0;
         state <= (op_code == OPXM) ? LOADB1: CALC;
         if(!(op_code == OPXM)) $display("Calc> A: %0d, B: %0d, M: %0d", A, B, M);
@@ -207,6 +207,7 @@ module mon_prod (
           // TODO need to fix this so the real stop does not go high until P is
           // done being stored in memory, the real stop can be if we in IDLE state
           // Can we avoid this subtraction?!
+          // TODO make a new P_norm to be used only for writing back to mem
           P = (P < M) ? P : P - M;
           $display("CALC_END: %0d", P);
           state <= STORE1;
@@ -257,4 +258,5 @@ module shift_add_mult2(
   // assign a_s1 = B[1] ? (A << 1) :  {`BITLEN+1{1'b0}};
 
   assign P = A & {`BITLEN{B[0]}};
+
 endmodule

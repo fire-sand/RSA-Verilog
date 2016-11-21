@@ -29,11 +29,7 @@ module bram #(
 	end
 
 	always @(posedge clk) begin
-		//$display("en: %0d waddr: %0d, data: %0d", WR_EN, WR_ADDR, WR_DATA);
-		//$display("en2: %0d waddr2: %0d, data2: %0d", WR_EN2, WR_ADDR2, WR_DATA2);
 		if (WR_EN) memory[WR_ADDR] <= WR_DATA;
-		//if (WR_EN) $display("addr: %0d data: %0d, huh: ", WR_ADDR, WR_DATA, WR_ADDR1);
 		RD_DATA <= memory[RD_ADDR];
-		//$display("rd_addr %0d, rd_data %0d", RD_ADDR, RD_DATA);
 	end
 endmodule
