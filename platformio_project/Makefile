@@ -41,3 +41,10 @@ bram_lut:
 	arachne-pnr test.blif -o test.txt -d 8k
 	rm -f test.blif test.txt
 
+top_lut:
+	yosys -p "synth_ice40 -abc2 -blif ./test.blif" src/mon_exp_top.v src/mon_exp.v src/mon_prod.v src/bram.v
+	arachne-pnr test.blif -o test.txt -d 8k
+#	rm -f test.blif test.txt
+
+
+
