@@ -106,7 +106,7 @@ initial begin
   start = 1;
 
   @(negedge clk);
-  start = 1;
+  start = 0;
 
 
   // @(negedge clk);
