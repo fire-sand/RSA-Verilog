@@ -16,13 +16,27 @@ shift_add_mult4_lut:
 
 mon_prod:
 	rm -f .pioenvs/icestick/mon_prod_tb.out
-	iverilog -o .pioenvs/icestick/mon_prod_tb.out src/mon_prod.v src/mon_prod_tb.v
+	iverilog -o .pioenvs/icestick/mon_prod_tb.out src/mon_prod.v src/mon_prod_tb.v src/bram.v
 	.pioenvs/icestick/mon_prod_tb.out
 
 mon_prod_lut:
-	yosys -p "synth_ice41 -abc2 -blif ./test.blif" src/mon_prod.v
+	yosys -p "synth_ice40 -abc2 -blif ./test.blif" src/mon_prod.v
+	sleep 1
+	arachne-pnr test.blif -o test.txt -d 8k
+	rm -f test.blif test.txt
 
 mon_exp:
 	rm -f .pioenvs/icestick/mon_exp_tb.out
-	iverilog -o .pioenvs/icestick/mon_exp_tb.out src/mon_prod.v src/mon_exp.v src/mon_exp_tb.v
+	iverilog -o .pioenvs/icestick/mon_exp_tb.out src/mon_prod.v src/mon_exp.v src/mon_exp_tb.v src/bram.v
 	.pioenvs/icestick/mon_exp_tb.out
+
+mon_exp_lut:
+	yosys -p "synth_ice40 -abc2 -blif ./test.blif" src/mon_exp.v src/mon_prod.v
+	arachne-pnr test.blif -o test.txt
+	rm test.blif test.txt
+bram_lut:
+	yosys -p "synth_ice40 -abc2 -blif ./test.blif" src/bram.v
+	sleep 1
+	arachne-pnr test.blif -o test.txt -d 8k
+	rm -f test.blif test.txt
+
