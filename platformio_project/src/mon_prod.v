@@ -104,17 +104,7 @@ module mon_prod (
   assign calc_end = !(| count); // stop = 1 if count is 0
 
 
-  reg [`BITLEN-1:0] big_mult;
-  initial big_mult = `BITLEN'b0;
   reg [`BETALEN-1:0] small_mult;
-  initial small_mult = `BETALEN'b0;
-  wire [`BITLEN+`BETALEN-1:0] mult_out;
-
-  shift_add_mult2 sam1 (
-      .A(big_mult),
-      .B(small_mult),
-      .P(mult_out)
-      );
 
   always @(posedge clk) begin
     // $display("mon_prod start: %d", start);
