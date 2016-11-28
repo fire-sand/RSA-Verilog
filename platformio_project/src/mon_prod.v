@@ -91,7 +91,6 @@ module mon_prod (
   reg [`BITLEN + `BETALEN - 1:0] P_norm;
   reg [`BITLEN + `BETALEN - 1:0] P_mid;
   reg [`BITLEN + `BETALEN - 1:0] P_mid2;
-  reg [`BITLEN + `BETALEN - 1:0] P_i;
 
 
   assign a0 = A[`BETALEN-1:0];
@@ -129,7 +128,7 @@ module mon_prod (
           rd_addr <= 1; // there is a 2 clock cycle delay for read values, because of commiting of registers
           state <= LOADA1;
           stop <= 0;
-          P_i <= 1025'b0;
+          P <= 1025'b0;
           count <= mp_count; // should be `BITLEN if power of 2, otherwise next highest power of 2
         end
       end
@@ -168,21 +167,21 @@ module mon_prod (
 
         $display("big_mult: %0d", A);
         $display("small_mult: %0d", (B[`BETALEN-1:0]));
-        P_mid =  (B[`BETALEN-1:0]) ? (A + P_i) :  P_i;
+        P_mid =  (B[`BETALEN-1:0]) ? (A + P) :  P;
 
-        small_mult = (mu * (a0 * B[`BETALEN-1:0] + P_i[`BETALEN-1:0]));
+        small_mult = (mu * (a0 * B[`BETALEN-1:0] + P[`BETALEN-1:0]));
         $display("big_mult: %0d", M);
         $display("small_mult: %0d", small_mult);
         P_mid2 = small_mult ? (P_mid + M) : P_mid;
         B = {B_cat, B[`BITLEN-1:`BETALEN]};
-        P_i = P_mid2 >> `BETALEN;
+        P = P_mid2 >> `BETALEN;
         count = count - 1;
 
-        $display("P: %0d", P_i);
+        $display("P: %0d", P);
 
         if (calc_end) begin
-          P_norm = P_i - M;
-          P = P_norm[`BETALEN + `BITLEN - 1] ? P_i : P_norm;
+          P_norm = P - M;
+          P = P_norm[`BETALEN + `BITLEN - 1] ? P : P_norm;
           $display("CALC_END: %0d", P);
           state <= STORE1;
           wr_data <= P[DBITS-1:0];
