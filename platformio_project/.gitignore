@@ -4,4 +4,5 @@
 .piolibdeps
 *.blif
 *.edif
+*.sw*
 notes.txt

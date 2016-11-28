@@ -88,6 +88,9 @@ module mon_prod (
   reg [`BETALEN-1:0] p0;
   // reg [`BETALEN-1:0] qt;
   reg [9:0] count;
+  reg [`BITLEN + `BETALEN - 1:0] P_norm;
+  initial P_norm = 1025'b0;
+
 
   assign a0 = A[`BETALEN-1:0];
   // assign m0 = M[`BETALEN-1:0];
@@ -138,7 +141,8 @@ module mon_prod (
 
       LOADA2: begin
         A[`BITLEN-1:DBITS] <= rd_data;
-        B[`BITLEN-1:DBITS] <= (op_code == OPX1) ? {{511{1'b0}}, 1'b1} : rd_data; // TODO fix me
+        B[`BITLEN-1:DBITS] <= (op_code == OPX1) ? {{511{1'b0}}, 1'b1} : rd_data;
+        if (op_code == OPX1) B[DBITS-1:0] <=  {{511{1'b0}}, 1'b1};
         rd_addr <= (op_code == OPXM) ? 3 : 0;
         state <= (op_code == OPXM) ? LOADB1: CALC;
         if(!(op_code == OPXM)) $display("Calc> A: %0d, B: %0d, M: %0d", A, B, M);
@@ -208,7 +212,8 @@ module mon_prod (
           // done being stored in memory, the real stop can be if we in IDLE state
           // Can we avoid this subtraction?!
           // TODO make a new P_norm to be used only for writing back to mem
-          P = (P < M) ? P : P - M;
+          P_norm = P - M;
+          P = P_norm[`BETALEN + `BITLEN - 1] ? P : P_norm;
           $display("CALC_END: %0d", P);
           state <= STORE1;
           wr_data <= P[DBITS-1:0];
@@ -237,8 +242,7 @@ module mon_prod (
   end
 endmodule
 
-module shift_add_mult2(
-  A,
+module shift_add_mult2( A,
   B,
   P,
   );
