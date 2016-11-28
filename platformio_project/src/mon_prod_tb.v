@@ -120,16 +120,16 @@ initial begin
   $display("P: %0d\n", P);
   $display("stop: %d\n", stop);
 
-  @(negedge clk);
-  wr_en2 = 0;
-  M = 589;
-  mp_count = 10;
-  start = 1;
+  /*@(negedge clk);*/
+  //wr_en2 = 0;
+  //M = 589;
+  //mp_count = 10;
+  //start = 1;
 
-  @(posedge stop);
-  $display("-- TB");
-  $display("P: %0d\n", P);
-  $display("stop: %d\n", stop);
+  //@(posedge stop);
+  //$display("-- TB");
+  //$display("P: %0d\n", P);
+  /*$display("stop: %d\n", stop);*/
 
   $display("<< End of simulation >>");
   $finish;
