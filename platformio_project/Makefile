@@ -20,7 +20,12 @@ mon_prod:
 	.pioenvs/icestick/mon_prod_tb.out
 
 mon_prod_lut:
-	yosys -p "synth_ice40 -abc2  -blif ./test.blif" src/mon_prod.v src/bram.v
+	yosys -p "synth_ice40 -abc2  -blif ./test.blif" src/mon_prod.v
+	sleep 1
+	arachne-pnr test.blif -o test.txt -d 8k
+
+mon_prod_sv_lut:
+	yosys -p "synth_ice40 -abc2  -blif ./test.blif" src/mon_prod_sv.v
 	sleep 1
 	arachne-pnr test.blif -o test.txt -d 8k
 	rm -f test.blif test.txt
@@ -49,7 +54,7 @@ top_lut:
 and_add_lut:
 	yosys -p "synth_ice40 -abc2 -blif ./test.blif" src/and_add.v
 	arachne-pnr test.blif -o test.txt -d 8k
-	rm -f test.blif test.txt
+#	rm -f test.blif test.txt
 
 
 
