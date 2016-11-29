@@ -3,7 +3,7 @@
 
 module mon_prod_tb();
 
-parameter bitLen = 1024;
+parameter bitLen = 512;
 parameter ABITS = 8, DBITS = 512;
 localparam OPXX = 2'd0;
 localparam OPXM = 2'd1;

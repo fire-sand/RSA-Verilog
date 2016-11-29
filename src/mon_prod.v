@@ -1,13 +1,9 @@
 `default_nettype none
 
-`define BITLEN 1024
-`define BETA 2
-`define BETALEN 1
-
 
 /////// NOTE on storing data in memory
-// x_bar - [0] low bits and [1] high bits
-// M_bar - [2] low bits and [3] high bits
+// x_bar - [0] low bits
+// M_bar - [2] low bits
 // m     - not stored in memory as it is always the same
 // op_codes:
 //    - OPXX = 0 , P = x_bar * x_bar mod m
@@ -31,8 +27,10 @@ module mon_prod (
   );
 
   parameter ABITS = 8, DBITS = 512;
-  // B = 2 ^ p
-  localparam  p = 2;
+  localparam BITLEN = 512;
+  localparam LOG_BITLEN = 9;
+  localparam BETA = 2;
+  localparam BETALEN = 1;
   localparam  IDLE = 0;
   localparam  LOADA1 = 1;
   localparam  LOADA2 = 2;
@@ -54,8 +52,8 @@ module mon_prod (
   input clk;
   input start;
   input [1:0] op_code;
-  input [`BITLEN-1:0] M;
-  input [9:0] mp_count;
+  input [BITLEN-1:0] M;
+  input [LOG_BITLEN:0] mp_count;
   input [DBITS-1:0] rd_data;
 
   output reg [ABITS-1:0] rd_addr;
@@ -66,45 +64,45 @@ module mon_prod (
   output reg wr_en;
   initial wr_en = 0;
   output reg stop;
-  output reg [`BITLEN + `BETALEN - 1:0] P;
+  output reg [BITLEN + BETALEN - 1:0] P;
   initial P = 1025'b0;
 
 
 
-  wire [`BETALEN-1:0] B_cat;
-  assign B_cat = {`BETALEN{1'b0}};
-  wire [`BETALEN-1:0] a0;
-  // wire [`BETALEN-1:0] m0;
-  wire [`BETALEN-1:0] mu;
+  wire [BETALEN-1:0] B_cat;
+  assign B_cat = {BETALEN{1'b0}};
+  wire [BETALEN-1:0] a0;
+  // wire [BETALEN-1:0] m0;
+  wire [BETALEN-1:0] mu;
 
-  reg [`BITLEN-1:0] A;
-  reg [`BITLEN-1:0] B;
+  reg [BITLEN-1:0] A;
+  reg [BITLEN-1:0] B;
   reg [3:0]state;
-  initial A = {`BITLEN{1'b1}};
-  initial B = {`BITLEN{1'b1}};
+  initial A = {BITLEN{1'b1}};
+  initial B = {BITLEN{1'b1}};
   initial state = IDLE;
 
-  // reg [`BETALEN-1:0] bt;
-  reg [`BETALEN-1:0] p0;
-  // reg [`BETALEN-1:0] qt;
+  // reg [BETALEN-1:0] bt;
+  reg [BETALEN-1:0] p0;
+  // reg [BETALEN-1:0] qt;
   reg [9:0] count;
-  reg [`BITLEN + `BETALEN - 1:0] P_norm;
-  reg [`BITLEN + `BETALEN - 1:0] P_mid;
-  reg [`BITLEN + `BETALEN - 1:0] P_mid2;
+  reg [BITLEN + BETALEN - 1:0] P_norm;
+  reg [BITLEN + BETALEN - 1:0] P_mid;
+  reg [BITLEN + BETALEN - 1:0] P_mid2;
 
 
-  assign a0 = A[`BETALEN-1:0];
-  // assign m0 = M[`BETALEN-1:0];
+  assign a0 = A[BETALEN-1:0];
+  // assign m0 = M[BETALEN-1:0];
   // assign mu = (m0 == 2'd3) ? 2'd1 :
   //             (m0 == 2'd1) ? 2'd3 :
   //             2'd0;
-  assign mu = M[`BETALEN-1:0];
+  assign mu = M[BETALEN-1:0];
 
   wire calc_end;
   assign calc_end = !(| count); // stop = 1 if count is 0
 
 
-  reg [`BETALEN-1:0] small_mult;
+  reg [BETALEN-1:0] small_mult;
 
   always @(posedge clk) begin
     // $display("mon_prod start: %d", start);
@@ -115,81 +113,84 @@ module mon_prod (
         if (start) begin
           // Load the low bits of A, either
           $display("OPxx?> %0d", op_code === OPXX);
-          rd_addr <= 1; // there is a 2 clock cycle delay for read values, because of commiting of registers
+          $display("OPx1?> %0d", op_code === OPX1);
+          rd_addr <= 2; // there is a 2 clock cycle delay for read values, because of commiting of registers
           state <= LOADA1;
           stop <= 0;
           P <= 1025'b0;
-          count <= mp_count; // should be `BITLEN if power of 2, otherwise next highest power of 2
+          count <= mp_count; // should be BITLEN if power of 2, otherwise next highest power of 2
         end
       end
 
       LOADA1: begin
-        A[DBITS-1:0] <= rd_data;
-        B[DBITS-1:0] <= rd_data;
-        rd_addr <= 2;
-        state <= LOADA2;
+        A[DBITS-1:0] <= rd_data; // rd data is from addr 0
+        B[DBITS-1:0] <= (op_code == OPX1) ? {{DBITS-2{1'b0}}, 1'b1} : rd_data;
+        state <= (op_code == OPXM) ? LOADB1: CALC;
+        rd_addr <= (op_code == OPXM) ? 2 : 0;
       end
 
-      LOADA2: begin
-        A[`BITLEN-1:DBITS] <= rd_data;
-        B[`BITLEN-1:DBITS] <= (op_code == OPX1) ? {{511{1'b0}}, 1'b1} : rd_data;
-        if (op_code == OPX1) B[DBITS-1:0] <=  {{511{1'b0}}, 1'b1};
-        rd_addr <= (op_code == OPXM) ? 3 : 0;
-        state <= (op_code == OPXM) ? LOADB1: CALC;
-        if(!(op_code == OPXM)) $display("Calc> A: %0d, B: %0d, M: %0d", A, B, M);
-      end
+      //LOADA2: begin
+        //A[BITLEN-1:DBITS] <= rd_data; // rd data is from addr 1
+        //B[BITLEN-1:DBITS] <= (op_code == OPX1) ? {{511{1'b0}}, 1'b1} : rd_data;
+        //if (op_code == OPX1) B[DBITS-1:0] <=  {{511{1'b0}}, 1'b1};
+        //rd_addr <= (op_code == OPXM) ? 3 : 0;
+        //state <= (op_code == OPXM) ? LOADB1: CALC;
+        //if(!(op_code == OPXM)) $display("Calc> A: %0d, B: %0d, M: %0d", A, B, M);
+      //end
 
       LOADB1: begin
-        B <= {{DBITS-1{1'b0}}, rd_data};
-        rd_addr <= 0;
-        state <= LOADB2;
-      end
-
-      LOADB2: begin
-        B <= {rd_data, B[DBITS-1:0]};
+        B <= {{DBITS-1{1'b0}}, rd_data}; // rd data is from addr 2
         rd_addr <= 0;
         state <= CALC;
         $display("Calc> A: %0d, B: %0d, M: %0d", A, B, M);
-
       end
 
+      //LOADB2: begin
+        //B <= {rd_data, B[DBITS-1:0]}; // rd data is from addr 3
+        //rd_addr <= 0;
+        //state <= CALC;
+        //$display("Calc> A: %0d, B: %0d, M: %0d", A, B, M);
+
+      //end
+
       CALC: begin
+        $display("Calc2> A: %0d, B: %0d, M: %0d", A, B, M);
 
         $display("big_mult: %0d", A);
-        $display("small_mult: %0d", (B[`BETALEN-1:0]));
-        P_mid =  (B[`BETALEN-1:0]) ? (A + P) :  P;
+        $display("small_mult: %0d", (B[BETALEN-1:0]));
+        P_mid =  (B[BETALEN-1:0]) ? (A + P) :  P;
 
-        small_mult = (mu * (a0 * B[`BETALEN-1:0] + P[`BETALEN-1:0]));
+        small_mult = (mu * (a0 * B[BETALEN-1:0] + P[BETALEN-1:0]));
         $display("big_mult: %0d", M);
         $display("small_mult: %0d", small_mult);
         P_mid2 = small_mult ? (P_mid + M) : P_mid;
-        B = {B_cat, B[`BITLEN-1:`BETALEN]};
-        P = P_mid2 >> `BETALEN;
+        B = {B_cat, B[BITLEN-1:BETALEN]};
+        P = P_mid2 >> BETALEN;
         count = count - 1;
 
         $display("P: %0d", P);
 
         if (calc_end) begin
           P_norm = P - M;
-          P = P_norm[`BETALEN + `BITLEN - 1] ? P : P_norm;
+          P = P_norm[BETALEN + BITLEN - 1] ? P : P_norm;
           $display("CALC_END: %0d", P);
-          state <= STORE1;
+          state <= STORE2;
           wr_data <= P[DBITS-1:0];
           wr_en <= 1'b1;
           wr_addr <= 0;
-          $display("wr_addr: %0d", wr_addr);
+          //$display("wr_addr: %0d", wr_addr);
         end else begin
           state <= CALC;
         end
       end
 
-      STORE1: begin
-        wr_data <= P[`BITLEN-1:DBITS];
-        wr_en <= 1'b1;
-        wr_addr <= 1;
-        $display("wr_addr: %0d", wr_addr);
-        state <= STORE2;
-      end
+      //STORE1: begin
+        //wr_data <= P[`BITLEN-1:DBITS];
+        //wr_en <= 1'b1;
+        //wr_addr <= 1;
+        //$display("wr_addr: %0d", wr_addr);
+        //state <= STORE2;
+      //end
 
       STORE2: begin
         wr_en <= 1'b0;
@@ -198,27 +199,4 @@ module mon_prod (
       end
     endcase
   end
-endmodule
-
-module shift_add_mult2( A,
-  B,
-  P,
-  );
-
-  input [`BITLEN-1:0] A;
-  input [`BETALEN-1:0] B;
-
-  output [`BITLEN+`BETALEN-1:0] P;
-
-  // wire [`BITLEN-1:0] a_s0;
-  // wire [`BITLEN:0] a_s1;
-
-  // assign a_s0 = A & {`BITLEN{B[0]}};
-  // assign a_s1 = (A & {`BITLEN{B[1]}}) << 1;
-
-  // assign a_s0 = B[0] ? A : {`BITLEN{1'b0}};
-  // assign a_s1 = B[1] ? (A << 1) :  {`BITLEN+1{1'b0}};
-
-  assign P = A & {`BITLEN{B[0]}};
-
 endmodule

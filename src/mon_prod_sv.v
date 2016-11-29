@@ -15,7 +15,7 @@
 //    - OPX1 = 2, P = x_bar * 1 mod m
 //////
 
-module mon_prod (
+module mon_prod_sv (
   clk,
   start,
   op_code,

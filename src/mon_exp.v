@@ -1,7 +1,5 @@
 `default_nettype none
 
-`define BITLEN 1024
-`define log_BITLEN 10
 module mon_exp (
   clk,
   start,
@@ -19,6 +17,8 @@ module mon_exp (
   ans
   );
 
+  localparam  BITLEN =  1024;
+  localparam  LOG_BITLEN = 9;
   localparam  IDLE = 3'b0;
   localparam  CALC = 3'b1;
   localparam  CALC1 = 3'd2;
@@ -33,10 +33,10 @@ module mon_exp (
 
   input clk;
   input start;
-  input [`BITLEN-1:0] e;
-  input [`log_BITLEN-1:0] e_idx;
-  input [`BITLEN-1:0] M;
-  input [9:0] mp_count;
+  input [BITLEN-1:0] e;
+  input [LOG_BITLEN-1:0] e_idx;
+  input [BITLEN-1:0] M;
+  input [LOG_BITLEN:0] mp_count;
   input [DBITS-1:0] rd_data;
 
   output reg [1:0] op_code;
@@ -44,22 +44,22 @@ module mon_exp (
   output [DBITS-1:0] wr_data;
   output [ABITS-1:0] wr_addr;
   output wr_en;
-  output [`BITLEN-1:0] ans;
+  output [BITLEN-1:0] ans;
   output reg stop;
   initial stop = 1'b0;
 
-  //reg [`BITLEN-1:0] reg_e;
+  //reg [BITLEN-1:0] reg_e;
   reg mp_start;
   reg old_mp_start;
   initial mp_start = 0;
   initial old_mp_start = 0;
   wire mp_stop;
   reg old_mp_stop;
-  reg [`BITLEN-1:0] mp_M;
+  reg [BITLEN-1:0] mp_M;
   reg [2:0] state;
   initial state = IDLE;
 
-  reg [`log_BITLEN-1:0] idx;
+  reg [LOG_BITLEN-1:0] idx;
 
   mon_prod mp (
     .clk(clk),
