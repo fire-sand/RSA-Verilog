@@ -1,2 +1,8 @@
-*.log
-*.txt
+.pioenvs
+.clang_complete
+.gcc-flags.json
+.piolibdeps
+*.blif
+*.edif
+*.sw*
+notes.txt
