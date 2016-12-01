@@ -26,21 +26,16 @@ module mon_prod (
   P,
   );
 
-  parameter ABITS = 8, DBITS = 512;
-  localparam BITLEN = 512;
-  localparam LOG_BITLEN = 9;
+  parameter ABITS = 8, DBITS = 256;
+  localparam BITLEN = 256;
+  localparam LOG_BITLEN = 8;
   localparam BETA = 2;
   localparam BETALEN = 1;
   localparam  IDLE = 0;
   localparam  LOADA1 = 1;
-  localparam  LOADA2 = 2;
-  localparam  LOADB1 = 3;
-  localparam  LOADB2 = 4;
-  localparam  CALC = 5;
-  localparam  CALC1 = 6;
-  localparam  CALC2 = 7;
-  localparam  STORE1 = 8;
-  localparam  STORE2 = 9;
+  localparam  LOADB1 = 2;
+  localparam  CALC = 3;
+  localparam  STORE1 = 4;
 
   localparam OPXX = 2'd0;
   localparam OPXM = 2'd1;
@@ -77,7 +72,7 @@ module mon_prod (
 
   reg [BITLEN-1:0] A;
   reg [BITLEN-1:0] B;
-  reg [3:0]state;
+  reg [2:0]state;
   initial A = {BITLEN{1'b1}};
   initial B = {BITLEN{1'b1}};
   initial state = IDLE;
@@ -174,7 +169,7 @@ module mon_prod (
           P_norm = P - M;
           P = P_norm[BETALEN + BITLEN - 1] ? P : P_norm;
           $display("CALC_END: %0d", P);
-          state <= STORE2;
+          state <= STORE1;
           wr_data <= P[DBITS-1:0];
           wr_en <= 1'b1;
           wr_addr <= 0;
@@ -192,7 +187,7 @@ module mon_prod (
         //state <= STORE2;
       //end
 
-      STORE2: begin
+      STORE1: begin
         wr_en <= 1'b0;
         state <= IDLE;
         stop <= 1;

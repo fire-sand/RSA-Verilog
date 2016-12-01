@@ -6,3 +6,4 @@
 *.edif
 *.sw*
 notes.txt
+outputs/*

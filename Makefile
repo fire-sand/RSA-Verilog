@@ -1,60 +1,70 @@
+CC=yosys
+CFLAGS=-p "synth_ice40 -abc2  -blif outputs/test.blif" -ql test.log -o outputs/test_syn.v
+
+setup:
+	mkdir -p outputs
+
 serial_to_parallel:
-	iverilog -o .pioenvs/icestick/serial_to_prallel_tb.out src/serial_to_parallel.v src/serial_to_parallel_tb.v
-	.pioenvs/icestick/serial_to_prallel_tb.out
+	iverilog -o outputs/serial_to_prallel_tb.out src/serial_to_parallel.v src/serial_to_parallel_tb.v
+	outputs/serial_to_prallel_tb.out
 
 parallel_to_serial:
-	iverilog -o .pioenvs/icestick/parallel_to_serial_tb.out src/parallel_to_serial.v src/parallel_to_serial_tb.v
-	.pioenvs/icestick/parallel_to_serial_tb.out
+	iverilog -o outputs/parallel_to_serial_tb.out src/parallel_to_serial.v src/parallel_to_serial_tb.v
+	outputs/parallel_to_serial_tb.out
 
 shift_add_mult5:
-	iverilog -o .pioenvs/icestick/shift_add_mult4_tb.out src/shift_add_mult4.v src/shift_add_mult4_tb.v
-	.pioenvs/icestick/shift_add_mult4_tb.out
+	iverilog -o outputs/shift_add_mult4_tb.out src/shift_add_mult4.v src/shift_add_mult4_tb.v
+	outputs/shift_add_mult4_tb.out
 
 shift_add_mult4_lut:
-	yosys -p "synth_ice40 -blif ./test.blif" src/shift_add_mult4.v
-	rm ./test.blif
+	$(CC) $(CFLAGS) src/shift_add_mult4.v
+	rm ./outputs/test.blif
 
 mon_prod:
-	rm -f .pioenvs/icestick/mon_prod_tb.out
-	iverilog -o .pioenvs/icestick/mon_prod_tb.out src/mon_prod.v src/mon_prod_tb.v src/bram.v
-	.pioenvs/icestick/mon_prod_tb.out
+	rm -f outputs/mon_prod_tb.out
+	iverilog -o outputs/mon_prod_tb.out src/mon_prod.v src/mon_prod_tb.v src/bram.v
+	outputs/mon_prod_tb.out
 
 mon_prod_lut:
-	yosys -p "synth_ice40 -abc2  -blif ./test.blif" src/mon_prod.v
+	$(CC) $(CFLAGS) src/mon_prod.v
 	sleep 1
-	arachne-pnr test.blif -o test.txt -d 8k
+	arachne-pnr outputs/test.blif -o outputs/test.txt -d 8k
 
 mon_prod_sv_lut:
-	yosys -p "synth_ice40 -abc2  -blif ./test.blif" src/mon_prod_sv.v
+	$(CC) $(CFLAGS) src/mon_prod_sv.v
 	sleep 1
-	arachne-pnr test.blif -o test.txt -d 8k
-	rm -f test.blif test.txt
+	arachne-pnr outputs/test.blif -o outputs/test.txt -d 8k
 
 mon_exp:
-	rm -f .pioenvs/icestick/mon_exp_tb.out
-	iverilog -o .pioenvs/icestick/mon_exp_tb.out src/mon_prod.v src/mon_exp.v src/mon_exp_tb.v src/bram.v
-	.pioenvs/icestick/mon_exp_tb.out
+	rm -f outputs/mon_exp_tb.out
+	iverilog -o outputs/mon_exp_tb.out src/mon_prod.v src/mon_exp.v src/mon_exp_tb.v src/bram.v
+	outputs/mon_exp_tb.out
 
 mon_exp_lut:
-	yosys -p "synth_ice40 -abc2 -blif ./test.blif" src/mon_exp.v src/mon_prod.v
-	arachne-pnr test.blif -o test.txt -d 8k
-	rm -f test.blif test.txt
+	$(CC) $(CFLAGS) src/mon_exp.v src/mon_prod.v
+	arachne-pnr outputs/test.blif -o outputs/test.txt -d 8k
+	rm -f outputs/test.blif outputs/test.txt
 
 bram_lut:
-	yosys -p "synth_ice40 -abc2 -blif ./test.blif" src/bram.v
+	$(CC) $(CFLAGS) src/bram.v
 	sleep 1
-	arachne-pnr test.blif -o test.txt -d 8k
-	rm -f test.blif test.txt
+	arachne-pnr outputs/test.blif -o outputs/test.txt -d 8k
+	rm -f outputs/test.blif outputs/test.txt
 
 top_lut:
-	yosys -p "synth_ice40 -abc2 -blif ./test.blif" src/mon_exp_top.v src/mon_exp.v src/mon_prod.v src/bram.v
-	arachne-pnr test.blif -o test.txt -d 8k
-	rm -f test.blif test.txt
+	$(CC) $(CFLAGS) src/mon_exp_top.v src/mon_exp.v src/mon_prod.v src/bram.v
+	arachne-pnr outputs/test.blif -o outputs/test.txt -d 8k
+	rm -f outputs/test.blif outputs/test.txt
 
 and_add_lut:
-	yosys -p "synth_ice40 -abc2 -blif ./test.blif" src/and_add.v
-	arachne-pnr test.blif -o test.txt -d 8k
-#	rm -f test.blif test.txt
+	$(CC) $(CFLAGS) src/and_add.v
+	arachne-pnr outputs/test.blif -o outputs/test.txt -d 8k
+#	rm -f outputs/test.blif outputs/test.txt
+#
+uart_top:
+	$(CC) $(CFLAGS) src/uart_test.v src/serial_to_parallel.v src/parallel_to_serial.v
+	arachne-pnr outputs/test.blif -o outputs/test.txt -d 8k
+
 
 
 

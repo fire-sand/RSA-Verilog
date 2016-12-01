@@ -103,24 +103,6 @@ module top(
 		.tx_valid(transmit)
 	);
 
-	reg start;
-	reg [bitLen-1:0] A;
-	reg [bitLen-1:0] B;
-	reg [bitLen-1:0] M;
-
-	// outputs are wire
-	wire stop;
-	wire [bitLen-1:0] P;
-
-	mon_prod monprod (
-	  .clk(iCE_CLK),
-	  .start(tx_valid),
-	  .A(A),
-	  .B(B),
-	  .M(M),
-	  .stop(stop),
-	  .P(P)
-	  );
 
 	// always @(posedge clk) begin
 	// 	if (received) begin

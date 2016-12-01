@@ -17,7 +17,7 @@ module mon_exp (
   ans
   );
 
-  localparam  BITLEN =  1024;
+  localparam  BITLEN = 512;
   localparam  LOG_BITLEN = 9;
   localparam  IDLE = 3'b0;
   localparam  CALC = 3'b1;
