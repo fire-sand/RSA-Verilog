@@ -75,11 +75,15 @@ initial begin
   n = 589;
   mp_count = 10;
   // M = 311;
+  $display("m: 199");
+  $display("e: %0d", e);
+  $display("n: %0d", n);
 
   wr_en2 = 1;
   wr_addr2 = 0;
   wr_data2 = 1024'd435;
   start = 0;
+  $display("X_bar: %0d", wr_data2);
 
   @(negedge clk);
   // high bits of A
@@ -94,6 +98,7 @@ initial begin
   wr_en2 = 1;
   wr_addr2 = 2;
   wr_data2 = 1024'd571;
+  $display("M_bar: %0d", wr_data2);
 
   @(negedge clk);
   // high bits of B
@@ -109,6 +114,8 @@ initial begin
   start = 0;
 
 
+
+
   // @(negedge clk);
   // $display("-- TB");
   // $display("ans: %0d\n", ans);
@@ -116,7 +123,7 @@ initial begin
 
   @(posedge stop);
   $display("-- TB");
-  $display("ans: %0d\n", ans);
+  $display("m^e mod n = %0d\n", ans);
   $display("stop: %0d\n", stop);
   $display("start: %0d\n", start);
 

@@ -17,8 +17,8 @@ module mon_exp (
   ans
   );
 
-  localparam  BITLEN = 512;
-  localparam  LOG_BITLEN = 9;
+  localparam  BITLEN = 256;
+  localparam  LOG_BITLEN = 8;
   localparam  IDLE = 3'b0;
   localparam  CALC = 3'b1;
   localparam  CALC1 = 3'd2;
@@ -29,7 +29,7 @@ module mon_exp (
   localparam OPXM = 2'd1;
   localparam OPX1 = 2'd2;
 
-  parameter ABITS = 8, DBITS = 512;
+  parameter ABITS = 8, DBITS = 256;
 
   input clk;
   input start;
@@ -95,8 +95,8 @@ module mon_exp (
           op_code <= OPXX;
           idx = e_idx-1;
           state = e[e_idx] ? CALC1 : CALC;
-          $display("e: %0b, idx: %0d", e, idx);
-          $display("e[%0d] = %0d", e_idx, e[e_idx]);
+          //$display("e: %0b, idx: %0d", e, idx);
+          //$display("e[%0d] = %0d", e_idx, e[e_idx]);
           mp_start <= 1'b1;
         end
       end
@@ -112,7 +112,7 @@ module mon_exp (
             mp_start = 1;
           //  reg_e = reg_e >> 1;
             state = e[idx] ? CALC1: !(|idx) ? CALC2 : CALC;
-            $display("e[%0d] = %0d", idx, e[idx]);
+            //$display("e[%0d] = %0d", idx, e[idx]);
             // $display("HELLO state: %0d, e[idx]: %d, idx", state, e[idx], idx);
             idx = idx-1;
 

@@ -19,7 +19,7 @@
 //`default_nettype none
 
 module top(
-	iCE_CLK,
+	clk,
 	RS232_Rx_TTL,
 	RS232_Tx_TTL,
 	LED0,
@@ -33,7 +33,7 @@ module top(
 	parameter bitLen = 64; //
   parameter log2BitLendiv4 = 4;
 
-	input iCE_CLK;
+	input clk;
 	input RS232_Rx_TTL;
 	output RS232_Tx_TTL;
 	output LED0;
@@ -67,7 +67,7 @@ module top(
 		.sys_clk_freq(12000000)           // The master clock frequency
 	)
 	uart0(
-		.clk(iCE_CLK),                    // The master clock for this module
+		.clk(clk),                    // The master clock for this module
 		.rst(reset),                      // Synchronous reset
 		.rx(RS232_Rx_TTL),                // Incoming serial line
 		.tx(RS232_Tx_TTL),                // Outgoing serial line
@@ -84,7 +84,7 @@ module top(
 		.N(N),
 		.Ndiv4log2(Ndiv4log2),
 	) stp (
-	  .clk(iCE_CLK),
+	  .clk(clk),
 		.rx_valid(received),
 		.rx_byte(rx_byte),
 		.tx_bytes(stp_output_bus),
@@ -95,7 +95,7 @@ module top(
 		.N(N),
 		.Ndiv4log2(Ndiv4log2),
 	) pts (
-	  .clk(iCE_CLK),
+	  .clk(clk),
 		.rx_valid(stp_output_valid),
 		.rx_bytes(stp_output_bus),
 		.is_transmitting(is_transmitting),
@@ -104,12 +104,12 @@ module top(
 	);
 
 
-	// always @(posedge clk) begin
-	// 	if (received) begin
-	// 		tx_byte <= rx_byte;
-	// 		transmit <= 1;
-	// 	end else begin
-	// 		transmit <= 0;
-	// 	end
-	// end
+   //always @(posedge clk) begin
+     //if (received) begin
+       //tx_byte <= rx_byte;
+       //transmit <= 1;
+     //end else begin
+       //transmit <= 0;
+     //end
+   //end
 endmodule
