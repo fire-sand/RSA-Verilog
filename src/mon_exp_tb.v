@@ -41,7 +41,7 @@ mon_exp mp (
   .start(start),
   .e(e), // ^ e
   .e_idx(e_idx),
-  .M(n),  // mod n
+  .n(n),  // mod n
   .mp_count(mp_count),
   .rd_addr(rd_addr),
   .rd_data(rd_data),

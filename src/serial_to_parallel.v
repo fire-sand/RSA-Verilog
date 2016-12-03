@@ -1,25 +1,49 @@
 `default_nettype none
 module serial_to_parallel (
   clk,
+  rst,
   rx_valid,
   rx_byte,
+  tx_e_idx,
+  tx_mp_count,
+  tx_e,
   tx_bytes,
   tx_valid,
+  wr_addr,
+  wr_data,
+  wr_en
   );
-  parameter N = 16;
+  parameter N = 32;
   parameter Ndiv4log2 = 3;
+  parameter Nlog2 = 5;
+  parameter ABITS = 8, DBITS = 256;
+
+  parameter RX_MP_COUNT = 0;
+  parameter RX_E_IDX = 1;
+  parameter RX_XBAR = 2;
+  parameter RX_MBAR = 3;
+  parameter RX_E = 4;
+  parameter RX_N = 4;
+
 
   // IO
   input clk;
+  input rst;
   input rx_valid;
   input [7:0] rx_byte;
-  output [N-1:0] tx_bytes;
-  output tx_valid;
+  output reg [Nlog2-1:0] tx_e_idx;
+  output reg [Nlog2-1:0] tx_mp_count;
+  output reg [N-1:0] tx_e;
+  output reg [N-1:0] tx_bytes; // tx_n
+  output reg tx_valid;
+  output reg [DBITS-1:0] wr_data;
+  output reg [ABITS-1:0] wr_addr;
+  output reg wr_en;
 
-  reg [N-1:0] tx_bytes;
-  reg tx_valid;
+  reg [2:0] state;
+  initial state = RX_MP_COUNT;
 
-  //initial tx_bytes = N'b0;
+  initial tx_bytes = {N{1'b0}};
   initial tx_valid = 1'b0;
   // internal wires
   reg[Ndiv4log2-1:0] count;
@@ -30,9 +54,16 @@ module serial_to_parallel (
   assign shifted = tx_bytes << 4'd8;
   assign ored = shifted | rx_byte;
   // if it is valid then assign it to the register
-  always @(posedge clk) begin
-    $display("N = %d", N);
 
+  always @(posedge clk) begin
+    //if (rst) begin
+      //state <= RX_MP_COUNT;
+      //tx_bytes <= {N{1'b0}};
+      //tx_valid <= 0;
+      //count <= 0;
+      //wr_en <= 0;
+    //end
+    $display("N = %d", N);
     //$display("rd_valid: %x", rx_valid);
     if (rx_valid) begin
       // $display("rx_byte: %x", rx_byte);
@@ -47,10 +78,48 @@ module serial_to_parallel (
       $display("count: %x", count);
       $display("count: %b", count);
       $display("count: %b", count[Ndiv4log2-1]);
+      case (state)
+        RX_MP_COUNT: begin
+          tx_mp_count <= rx_byte;
+          state <= RX_E_IDX;
+          count <= 0;
+        end
+        RX_E_IDX: begin
+          tx_e_idx <= rx_byte;
+          state <= RX_XBAR;
+          count <= 0;
+        end
+      endcase
+
 
       if (count[Ndiv4log2-1]) begin
-        tx_valid = 1'b1;
         count = 0;
+        case (state)
+          RX_XBAR: begin
+            wr_en <= 1;
+            wr_addr <= 0;
+            wr_data <= tx_bytes;
+            state <= RX_MBAR;
+          end
+          RX_MBAR: begin
+            wr_en <= 1;
+            wr_addr <= 2;
+            wr_data <= tx_bytes;
+            state <= RX_E;
+          end
+          RX_E: begin
+            wr_en <= 0;
+            tx_e <= tx_bytes;
+            state <= RX_E;
+          end
+
+          RX_N: begin
+            tx_valid = 1'b1;
+            state <= RX_MP_COUNT;
+          end
+        endcase
+
+
       end
     end
     if (tx_valid & ~rx_valid) begin

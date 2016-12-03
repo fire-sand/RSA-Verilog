@@ -15,7 +15,7 @@ module mon_prod (
   clk,
   start,
   op_code,
-  M,
+  n,
   mp_count,
   rd_addr,
   rd_data,
@@ -47,14 +47,14 @@ module mon_prod (
   input clk;
   input start;
   input [1:0] op_code;
-  input [BITLEN-1:0] M;
+  input [BITLEN-1:0] n;
   input [LOG_BITLEN:0] mp_count;
   input [DBITS-1:0] rd_data;
 
-  output reg [ABITS-1:0] rd_addr;
+  output  [ABITS-1:0] rd_addr;
   initial rd_addr = 0;
-  output reg [DBITS-1:0] wr_data;
-  output reg [ABITS-1:0] wr_addr;
+  output  [DBITS-1:0] wr_data;
+  output  [ABITS-1:0] wr_addr;
   initial wr_addr = 0;
   output reg wr_en;
   initial wr_en = 0;
@@ -87,11 +87,11 @@ module mon_prod (
 
 
   assign a0 = A[BETALEN-1:0];
-  // assign m0 = M[BETALEN-1:0];
+  // assign m0 = n[BETALEN-1:0];
   // assign mu = (m0 == 2'd3) ? 2'd1 :
   //             (m0 == 2'd1) ? 2'd3 :
   //             2'd0;
-  assign mu = M[BETALEN-1:0];
+  assign mu = n[BETALEN-1:0];
 
   wire calc_end;
   assign calc_end = !(| count); // stop = 1 if count is 0
@@ -101,7 +101,7 @@ module mon_prod (
 
   always @(posedge clk) begin
     // $display("mon_prod start: %d", start);
-    // $display("start: A: %0d, B: %0d, M: %0d", A, B, M);
+    // $display("start: A: %0d, B: %0d, n: %0d", A, B, n);
     //$display("\nnew clock\n");
     case (state)
       IDLE: begin
@@ -158,7 +158,7 @@ module mon_prod (
         small_mult = (mu * (a0 * B[BETALEN-1:0] + P[BETALEN-1:0]));
         //$display("big_mult: %0d", M);
         //$display("small_mult: %0d", small_mult);
-        P_mid2 = small_mult ? (P_mid + M) : P_mid;
+        P_mid2 = small_mult ? (P_mid + n) : P_mid;
         B = {B_cat, B[BITLEN-1:BETALEN]};
         P = P_mid2 >> BETALEN;
         count = count - 1;
@@ -166,7 +166,7 @@ module mon_prod (
         //$display("P: %0d", P);
 
         if (calc_end) begin
-          P_norm = P - M;
+          P_norm = P - n;
           P = P_norm[BETALEN + BITLEN - 1] ? P : P_norm;
           //$display("CALC_END: %0d", P);
           state <= STORE1;

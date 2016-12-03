@@ -5,7 +5,7 @@ module mon_exp (
   start,
   e,
   e_idx,
-  M, // modulus
+  n, // modulus
   mp_count,
   op_code,
   rd_addr,
@@ -35,7 +35,7 @@ module mon_exp (
   input start;
   input [BITLEN-1:0] e;
   input [LOG_BITLEN-1:0] e_idx;
-  input [BITLEN-1:0] M;
+  input [BITLEN-1:0] n;
   input [LOG_BITLEN:0] mp_count;
   input [DBITS-1:0] rd_data;
 
@@ -55,7 +55,6 @@ module mon_exp (
   initial old_mp_start = 0;
   wire mp_stop;
   reg old_mp_stop;
-  reg [BITLEN-1:0] mp_M;
   reg [2:0] state;
   initial state = IDLE;
 
@@ -65,7 +64,7 @@ module mon_exp (
     .clk(clk),
     .start(mp_start),
     .op_code(op_code),
-    .M(M),
+    .n(n),
     .mp_count(mp_count),
     .rd_addr(rd_addr),
     .rd_data(rd_data),

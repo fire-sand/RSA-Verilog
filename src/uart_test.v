@@ -44,8 +44,8 @@ module top(
 
 	// UART wires
 	wire reset = 0;
-	reg transmit;
-	reg [7:0] tx_byte;
+	wire transmit;
+	wire [7:0] tx_byte;
 	wire received;
 	wire [7:0] rx_byte;
 	wire is_receiving;
