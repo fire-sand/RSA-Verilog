@@ -27,8 +27,8 @@ module mon_prod (
   );
 
   parameter ABITS = 8, DBITS = 256;
-  localparam BITLEN = 256;
-  localparam LOG_BITLEN = 8;
+  parameter BITLEN = 256;
+  parameter LOG_BITLEN = 8;
   localparam BETA = 2;
   localparam BETALEN = 1;
   localparam  IDLE = 0;
@@ -51,10 +51,10 @@ module mon_prod (
   input [LOG_BITLEN:0] mp_count;
   input [DBITS-1:0] rd_data;
 
-  output  [ABITS-1:0] rd_addr;
+  output reg  [ABITS-1:0] rd_addr;
   initial rd_addr = 0;
-  output  [DBITS-1:0] wr_data;
-  output  [ABITS-1:0] wr_addr;
+  output reg  [DBITS-1:0] wr_data;
+  output reg  [ABITS-1:0] wr_addr;
   initial wr_addr = 0;
   output reg wr_en;
   initial wr_en = 0;

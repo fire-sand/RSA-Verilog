@@ -5,7 +5,7 @@ setup:
 	mkdir -p outputs
 
 serial_to_parallel: setup
-	iverilog -o outputs/serial_to_prallel_tb.out src/serial_to_parallel.v src/serial_to_parallel_tb.v
+	iverilog -o outputs/serial_to_prallel_tb.out src/serial_to_parallel.v src/serial_to_parallel_tb.v src/bram.v
 	outputs/serial_to_prallel_tb.out
 
 parallel_to_serial: setup
@@ -83,7 +83,7 @@ uart_test_upload: setup
 
 rsa_place: setup
 	$(CC) $(CFLAGS) src/rsa_top.v src/parallel_to_serial.v src/serial_to_parallel.v src/bram.v src/mon_exp.v src/mon_prod.v cores/osdvu/uart.v
-	arachne-pnr outputs/test.blif -o outputs/test.asc -d 8k -p src/rsa_top.pcf
+	arachne-pnr outputs/test.blif -o outputs/test.asc -d 8k -p src/rsa_top.pcf 2>&1
 rsa_upload: rsa_place
 	icepack outputs/test.asc outputs/test.bin
 	iceprog outputs/test.bin

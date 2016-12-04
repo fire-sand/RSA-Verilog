@@ -17,8 +17,8 @@ module mon_exp (
   ans
   );
 
-  localparam  BITLEN = 256;
-  localparam  LOG_BITLEN = 8;
+  parameter  BITLEN = 256;
+  parameter  LOG_BITLEN = 8;
   localparam  IDLE = 3'b0;
   localparam  CALC = 3'b1;
   localparam  CALC1 = 3'd2;
@@ -60,7 +60,12 @@ module mon_exp (
 
   reg [LOG_BITLEN-1:0] idx;
 
-  mon_prod mp (
+  mon_prod #(
+    .BITLEN(BITLEN),
+    .LOG_BITLEN(LOG_BITLEN),
+    .ABITS(ABITS),
+    .DBITS(DBITS)
+  ) mp (
     .clk(clk),
     .start(mp_start),
     .op_code(op_code),

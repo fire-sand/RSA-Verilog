@@ -1,3 +1,4 @@
+`default_nettype none
 module top(
   clk,
   RS232_Rx,
@@ -56,9 +57,9 @@ module top(
   wire [DBITS-1:0] wr_data1;
   wire wr_en1;
 
-  reg [ABITS-1:0] wr_addr2;
-  reg [DBITS-1:0] wr_data2;
-  reg wr_en2;
+  wire [ABITS-1:0] wr_addr2;
+  wire [DBITS-1:0] wr_data2;
+  wire wr_en2;
 
   wire [ABITS-1:0] rd_addr;
   wire [DBITS-1:0] rd_data;
@@ -80,7 +81,7 @@ module top(
   )
   uart(
     .clk(clk),                        // The master clock for this module
-    .rst(1'b0),                        // Synchronous reset
+    .rst(rst),                        // Synchronous reset
     .rx(RS232_Rx),                    // Incoming serial line
     .tx(RS232_Tx),                    // Outgoing serial line
     .transmit(transmit),              // Signal to transmit
@@ -92,7 +93,10 @@ module top(
     .recv_error(recv_error)           // Indicates error in receiving packet.
   );
 
-  bram br (
+  bram #(
+    .ABITS(ABITS),
+    .DBITS(DBITS)
+  ) br (
     .clk(clk),
     .WR_ADDR1(wr_addr1),
     .WR_DATA1(wr_data1),
@@ -104,7 +108,12 @@ module top(
     .RD_DATA(rd_data)
   );
 
-  mon_exp mp (
+  mon_exp #(
+    .BITLEN(BITLEN),
+    .LOG_BITLEN(LOG_BITLEN),
+    .ABITS(ABITS),
+    .DBITS(DBITS),
+  )mp (
     .clk(clk),
     .start(stp_output_valid),
     .e(e), // ^ e
