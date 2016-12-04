@@ -19,6 +19,8 @@ module mon_exp (
 
   parameter  BITLEN = 256;
   parameter  LOG_BITLEN = 8;
+  parameter ABITS = 8, DBITS = 256;
+
   localparam  IDLE = 3'b0;
   localparam  CALC = 3'b1;
   localparam  CALC1 = 3'd2;
@@ -29,7 +31,6 @@ module mon_exp (
   localparam OPXM = 2'd1;
   localparam OPX1 = 2'd2;
 
-  parameter ABITS = 8, DBITS = 256;
 
   input clk;
   input start;
@@ -93,7 +94,7 @@ module mon_exp (
     case (state)
       IDLE: begin
         if (start) begin
-          //$display("exp IDLE: e_idx: %0d,  e: %0b", e_idx, e);
+          $display("exp IDLE: e_idx: %0d,  e: %0b", e_idx, e);
 
           //$display(" %0d * %0d mod %0d", x_bar, x_bar, n);
           op_code <= OPXX;
@@ -117,8 +118,8 @@ module mon_exp (
           //  reg_e = reg_e >> 1;
             state = e[idx] ? CALC1: !(|idx) ? CALC2 : CALC;
             //$display("e[%0d] = %0d", idx, e[idx]);
-            // $display("HELLO state: %0d, e[idx]: %d, idx", state, e[idx], idx);
-            idx = idx-1;
+            $display("HELLO CALC: e[idx]: %d, idx %0d, CALC2?%0d",e[idx], idx,!(|idx));
+            idx = (e[idx] && !(|idx)) ? idx : idx-1;
 
           end
             // if ei === 1: then do the next round, else if we are done go to stop
@@ -134,6 +135,7 @@ module mon_exp (
 
           mp_start = 1;
           state = !(|idx) ? CALC2 : CALC;
+          $display("done? %d, %d", !(|idx), idx);
           // $display("state: %0d", state);
         end
       end
@@ -143,7 +145,7 @@ module mon_exp (
           op_code = OPX1;
           mp_start = 1;
           state = END;
-          // $display("exp CALC2");
+          $display("exp CALC2");
         end
       end
 
@@ -151,7 +153,7 @@ module mon_exp (
         if(mp_stop && !old_mp_stop) begin
           stop <= 1'b1;
           mp_start = 1'b0;
-          // $display("END");
+           $display("END");
           state <= IDLE;
         end
       end

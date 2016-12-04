@@ -5,7 +5,7 @@ setup:
 	mkdir -p outputs
 
 serial_to_parallel: setup
-	iverilog -o outputs/serial_to_prallel_tb.out src/serial_to_parallel.v src/serial_to_parallel_tb.v src/bram.v
+	iverilog -o outputs/serial_to_prallel_tb.out src/serial_to_parallel.v src/serial_to_parallel_tb.v src/bram.v src/mon_exp.v src/mon_prod.v
 	outputs/serial_to_prallel_tb.out
 
 parallel_to_serial: setup

@@ -133,6 +133,8 @@ module top(
     .N(BITLEN),
     .Ndiv4log2(BITLENdiv4log2),
     .Nlog2(LOG_BITLEN),
+    .ABITS(ABITS),
+    .DBITS(DBITS)
   ) stp (
     .clk(clk),
     .rst(rst),

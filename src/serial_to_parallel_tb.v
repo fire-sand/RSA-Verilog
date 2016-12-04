@@ -31,16 +31,16 @@ reg [7:0] rx_byte;
 wire tx_valid;
 
 // wires to connect bram
-reg [ABITS-1:0] wr_addr;
-reg [DBITS-1:0] wr_data;
-reg  wr_en;
+wire [ABITS-1:0] wr_addr;
+wire [DBITS-1:0] wr_data;
+wire  wr_en;
 
 // connected to stp and bram
 wire [ABITS-1:0] wr_addr2;
 wire [DBITS-1:0] wr_data2;
 wire wr_en2;
 
-reg [ABITS-1:0] rd_addr;
+wire [ABITS-1:0] rd_addr;
 wire [DBITS-1:0] rd_data;
 
 reg rst = 0;
@@ -53,6 +53,7 @@ wire stop;
 wire [BITLEN-1:0] ans;
 
 
+wire e_stop;
 
 //Instantiate the unit to test
 serial_to_parallel #(
@@ -92,6 +93,27 @@ bram #(
     .RD_DATA(rd_data)
   );
 
+mon_exp #(
+    .BITLEN(BITLEN),
+    .LOG_BITLEN(LOG_BITLEN),
+    .ABITS(ABITS),
+    .DBITS(DBITS)
+  ) mp (
+    .clk(clk),
+    .start(tx_valid),
+    .e(e), // ^ e
+    .e_idx(e_idx),
+    .n(n),  // mod n
+    .mp_count(mp_count),
+    .rd_addr(rd_addr),
+    .rd_data(rd_data),
+    .wr_data(wr_data),
+    .wr_addr(wr_addr),
+    .wr_en(wr_en),
+    .stop(e_stop),
+    .ans(ans)
+  );
+
 
 
 
@@ -99,7 +121,6 @@ initial begin
   $display("<< Starting Simulation >>");
   clk = 1'b0; // time 0
   rx_valid = 0;
-  wr_en = 0;
   @(negedge clk);
   rx_valid = 1;
   rx_byte = 8'hAA;
@@ -131,7 +152,6 @@ initial begin
   @(negedge clk);
   $display("Output should done now");
   $display ("output: %x, tx_valid %b", n, tx_valid);
-  rd_addr = 0;
 
 
   @(posedge tx_valid);
@@ -141,6 +161,10 @@ initial begin
   $display("mp_coun %0x", mp_count);
   $display("e %0x", e);
   $display("n %0x", n);
+  rx_valid = 0;
+
+  @(posedge e_stop);
+  $display("ans %0x", ans);
 
   //-- File were to store the simulation results
   // $dumpfile("leds_on_tb.vcd");
