@@ -114,20 +114,6 @@ mon_exp #(
     .ans(ans)
   );
 
-  parallel_to_serial #(
-    .N(BITLEN),
-    .Ndiv4log2(BITLENdiv4log2),
-  ) pts (
-    .clk(clk),
-    .rx_valid(e_stop),
-    .rx_bytes(ans),
-    .is_transmitting(is_transmitting),
-    .tx_byte(tx_byte),
-    .tx_valid(transmit)
-  );
-
-
-
 
 initial begin
   $display("<< Starting Simulation >>");
