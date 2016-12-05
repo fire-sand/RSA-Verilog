@@ -55,6 +55,11 @@ wire [BITLEN-1:0] ans;
 
 wire e_stop;
 
+
+reg is_transmitting;
+wire [7:0] tx_byte;
+wire transmit;
+
 //Instantiate the unit to test
 serial_to_parallel #(
     .N(BITLEN),
@@ -114,6 +119,18 @@ mon_exp #(
     .ans(ans)
   );
 
+
+ parallel_to_serial #(
+    .N(BITLEN),
+    .Ndiv4log2(BITLENdiv4log2)
+  ) pts (
+    .clk(clk),
+    .rx_valid(e_stop),
+    .rx_bytes(ans),
+    .is_transmitting(is_transmitting),
+    .tx_byte(tx_byte),
+    .tx_valid(transmit)
+  );
 
 initial begin
   $display("<< Starting Simulation >>");
@@ -198,13 +215,22 @@ initial begin
   $display ("output: %x, tx_valid %b", n, tx_valid);
   $display("rd_data: %x", rd_data);
   $display("e_idx %0x", e_idx);
-  $display("mp_coun %0x", mp_count);
+  $display("mp_count %0x", mp_count);
   $display("e %0x", e);
   $display("n %0x", n);
   rx_valid = 0;
 
-  @(posedge e_stop);
-  $display("ans %0d", ans);
+  @(posedge transmit);
+  $display("tx_byte: %0x", tx_byte);
+
+  @(negedge clk);
+  is_transmitting = 1;
+
+  @(negedge clk);
+  is_transmitting = 0;
+
+  @(posedge transmit);
+  $display("tx_byte: %0x", tx_byte);
 
   //-- File were to store the simulation results
   // $dumpfile("leds_on_tb.vcd");

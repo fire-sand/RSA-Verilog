@@ -23,10 +23,10 @@ module top(
   parameter LOG_BITLEN = 8;
   parameter ABITS = 8, DBITS = 256;
 
-  //parameter BITLEN = 64;
-  //parameter BITLENdiv4log2 = 4;
-  //parameter LOG_BITLEN = 6;
-  //parameter ABITS = 8, DBITS = 64;
+  //parameter BITLEN = 16;
+  //parameter BITLENdiv4log2 = 2;
+  //parameter LOG_BITLEN = 4;
+  //parameter ABITS = 8, DBITS = 16;
 
   input clk;
   input rst;
