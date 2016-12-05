@@ -16,8 +16,10 @@ module serial_to_parallel (
   parameter N = 32;
   parameter Ndiv4log2 = 3;
   parameter Nlog2 = 5;
-  parameter ABITS = 8, DBITS = 256;
+  parameter ABITS = 8, DBITS = 32;
 
+
+  // MAKE SURE ARGS ARE PASSED IN THIS ORDER!!!!!!!
   parameter RX_MP_COUNT = 0;
   parameter RX_E_IDX = 1;
   parameter RX_XBAR = 2;
@@ -55,7 +57,7 @@ module serial_to_parallel (
   // if it is valid then assign it to the register
 
   always @(posedge clk) begin
-    if (rst) begin
+    if (rst && 0) begin
       state <= RX_MP_COUNT;
       tx_bytes <= {N{1'b0}};
       tx_valid <= 0;

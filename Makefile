@@ -87,7 +87,6 @@ rsa_place: setup
 rsa_upload: rsa_place
 	icepack outputs/test.asc outputs/test.bin
 	iceprog outputs/test.bin
-	screen /dev/ttyUSB1
 
 
 

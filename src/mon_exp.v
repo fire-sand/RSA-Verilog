@@ -49,6 +49,8 @@ module mon_exp (
   output reg stop;
   initial stop = 1'b0;
 
+  reg old_stop;
+
   //reg [BITLEN-1:0] reg_e;
   reg mp_start;
   reg old_mp_start;
@@ -88,6 +90,9 @@ module mon_exp (
   // $display(state);
     if (old_mp_start && mp_start) begin
       mp_start = 0;
+    end
+    if (stop && old_stop) begin
+      stop = 0;
     end
     old_mp_start = mp_start;
     // $display("new");
@@ -159,5 +164,6 @@ module mon_exp (
       end
     endcase
     old_mp_stop = mp_stop;
+    old_stop = stop;
   end
 endmodule

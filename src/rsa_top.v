@@ -4,7 +4,6 @@ module top(
   RS232_Rx,
   RS232_Tx,
   rst,
-  LED0,
   LED1,
   LED2,
   LED3,
@@ -13,22 +12,26 @@ module top(
 
   //TODO add a transmitting so that this module cant be interrupted while
   // transmitting, right now it is just undefined behavior
+  //
+  //parameter BITLEN = 512;
+  //parameter BITLENdiv4log2 = 7;
+  //parameter LOG_BITLEN = 9;
+  //parameter ABITS = 8, DBITS = 512;
 
-  //parameter BITLEN = 256;
-  //parameter BITLENdiv4log2 = 6;
-  //parameter LOG_BITLEN = 8;
-  //parameter ABITS = 8, DBITS = 256;
+  parameter BITLEN = 256;
+  parameter BITLENdiv4log2 = 6;
+  parameter LOG_BITLEN = 8;
+  parameter ABITS = 8, DBITS = 256;
 
-  parameter BITLEN = 64;
-  parameter BITLENdiv4log2 = 4;
-  parameter LOG_BITLEN = 6;
-  parameter ABITS = 8, DBITS = 64;
+  //parameter BITLEN = 64;
+  //parameter BITLENdiv4log2 = 4;
+  //parameter LOG_BITLEN = 6;
+  //parameter ABITS = 8, DBITS = 64;
 
   input clk;
   input rst;
   input RS232_Rx;
-  input RS232_Tx;
-  output LED0;
+  output RS232_Tx;
   output LED1;
   output LED2;
   output LED3;
@@ -48,9 +51,10 @@ module top(
   wire stp_output_valid;
 
 
+  assign LED1 = is_receiving;
+  assign LED2 = is_receiving;
   assign LED4 = is_transmitting;
   assign LED3 = is_transmitting;
-  assign LED2 = transmit;
 
   // wires to connect bram
   wire [ABITS-1:0] wr_addr1;
@@ -71,9 +75,6 @@ module top(
   wire [LOG_BITLEN:0] mp_count;
   wire stop;
   wire [BITLEN-1:0] ans;
-
-
-
 
   uart #(
     .baud_rate(9600),                 // The baud rate in kilobits/s
