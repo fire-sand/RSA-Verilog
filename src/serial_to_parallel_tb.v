@@ -11,11 +11,11 @@ module serial_to_parallel_tb();
 
 //-- Simulation time: 1us (10 * 1ns)
 // parameter DURATION = 10;
-parameter BITLEN = 64;
-parameter N = 64;
-parameter BITLENdiv4log2 = 4;
-parameter LOG_BITLEN = 6;
-parameter ABITS = 8, DBITS = 64;
+parameter BITLEN = 16;
+parameter N = 16;
+parameter BITLENdiv4log2 = 2;
+parameter LOG_BITLEN = 4;
+parameter ABITS = 8, DBITS = 16;
 
 
 
@@ -121,35 +121,77 @@ initial begin
   rx_valid = 0;
   @(negedge clk);
   rx_valid = 1;
-  rx_byte = 8'hAA;
-  $display("loading AA into the register");
+  rx_byte = 8'd10;
+  $display("loading 10 into the register");
   $display ("output: %x, tx_valid %b", n, tx_valid);
 
   @(negedge clk);
   rx_valid = 1;
-  rx_byte = 8'hBB;
-  $display("loading BB into the register");
+  rx_byte = 8'd8;
+  $display("loading 8 into the register");
   $display ("output: %x, tx_valid %b", n, tx_valid);
 
+  // X_bar
   @(negedge clk);
   rx_valid = 1;
-  rx_byte = 8'hCC;
+  rx_byte = 8'h01;
   $display("loading CC into the register");
   $display ("output: %x, tx_valid %b", n, tx_valid);
 
   @(negedge clk);
   rx_valid = 1;
-  rx_byte = 8'hDD;
+  rx_byte = 8'hb3;
+  $display("loading CC into the register");
+  $display ("output: %x, tx_valid %b", n, tx_valid);
+
+
+  // M_bar
+  @(negedge clk);
+  rx_valid = 1;
+  rx_byte = 8'h02;
   $display("loading DDinto the register");
   $display ("output: %x, tx_valid %b", n, tx_valid);
 
   @(negedge clk);
   rx_valid = 1;
-  $display("Output should be valid now");
+  rx_byte = 8'h3b;
+  $display("loading DDinto the register");
   $display ("output: %x, tx_valid %b", n, tx_valid);
+
+  // B
   @(negedge clk);
-  $display("Output should done now");
+  rx_valid = 1;
+  rx_byte = 8'h01;
+  $display("loading DDinto the register");
   $display ("output: %x, tx_valid %b", n, tx_valid);
+
+  @(negedge clk);
+  rx_valid = 1;
+  rx_byte = 8'h2c;
+  $display("loading DDinto the register");
+  $display ("output: %x, tx_valid %b", n, tx_valid);
+
+  // M
+  @(negedge clk);
+  rx_valid = 1;
+  rx_byte = 8'h02;
+  $display("loading DDinto the register");
+  $display ("output: %x, tx_valid %b", n, tx_valid);
+
+  @(negedge clk);
+  rx_valid = 1;
+  rx_byte = 8'h4d;
+  $display("loading DDinto the register");
+  $display ("output: %x, tx_valid %b", n, tx_valid);
+
+  // @(negedge clk);
+  // rx_valid = 1;
+  // $display("Output should be valid now");
+  // $display ("output: %x, tx_valid %b", n, tx_valid);
+
+  // @(negedge clk);
+  // $display("Output should done now");
+  // $display ("output: %x, tx_valid %b", n, tx_valid);
 
 
   @(posedge tx_valid);
@@ -162,7 +204,7 @@ initial begin
   rx_valid = 0;
 
   @(posedge e_stop);
-  $display("ans %0x", ans);
+  $display("ans %0d", ans);
 
   //-- File were to store the simulation results
   // $dumpfile("leds_on_tb.vcd");

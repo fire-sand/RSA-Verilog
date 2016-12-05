@@ -94,7 +94,7 @@ module serial_to_parallel (
       endcase
 
 
-      $display("addr 0 should be %x", wr_data);
+      // $display("addr 0 should be %x", wr_data);
       if (count[Ndiv4log2-1]) begin
         count = 0;
         case (state)
@@ -103,8 +103,8 @@ module serial_to_parallel (
             wr_en <= 1;
             wr_addr <= 0;
             wr_data <= tx_bytes;
-            $display("addr 0 should be %x", tx_bytes);
-            $display("addr 0 should be %x", wr_data);
+            // $display("addr 0 should be %x", tx_bytes);
+            // $display("addr 0 should be %x", wr_data);
             state <= RX_MBAR;
           end
           RX_MBAR: begin
