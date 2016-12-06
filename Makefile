@@ -2,6 +2,7 @@ CC=yosys
 CFLAGS=-p "synth_ice40 -abc2  -blif outputs/test.blif" -ql outputs/test.log -o outputs/test_syn.v
 
 setup:
+	rm -rf outputs
 	mkdir -p outputs
 
 serial_to_parallel: setup
@@ -62,8 +63,8 @@ and_add_lut: setup
 #	rm -f outputs/test.blif outputs/test.txt
 #
 uart_top: setup
-	$(CC) $(CFLAGS) src/uart_test.v src/serial_to_parallel.v src/parallel_to_serial.v
-	arachne-pnr outputs/test.blif -o outputs/test.txt -d 8k
+	$(CC) $(CFLAGS) src/uart_test.v src/serial_to_parallel.v src/parallel_to_serial.v src/bram.v
+	arachne-pnr outputs/test.blif -o outputs/test.asc -d 8k
 
 
 led_upload: setup
@@ -73,9 +74,7 @@ led_upload: setup
 	iceprog outputs/test.bin
 
 
-uart_test_upload: setup
-	$(CC) $(CFLAGS) src/uart_test.v src/parallel_to_serial.v src/serial_to_parallel.v
-	arachne-pnr outputs/test.blif -o outputs/test.asc -d 8k -p src/uart_test.pcf
+uart_upload: uart_top
 	icepack outputs/test.asc outputs/test.bin
 	iceprog outputs/test.bin
 	screen /dev/ttyUSB1
@@ -84,8 +83,20 @@ uart_test_upload: setup
 rsa_place: setup
 	$(CC) $(CFLAGS) src/rsa_top.v src/parallel_to_serial.v src/serial_to_parallel.v src/bram.v src/mon_exp.v src/mon_prod.v cores/osdvu/uart.v
 	arachne-pnr outputs/test.blif -o outputs/test.asc -d 8k -p src/rsa_top.pcf 2>&1
+	cat outputs/test.log | grep Removed
 rsa_upload: rsa_place
 	icepack outputs/test.asc outputs/test.bin
+	iceprog outputs/test.bin
+
+mem_place: setup
+	$(CC) $(CFLAGS) src/mem_test.v src/parallel_to_serial.v src/serial_to_parallel.v src/bram.v src/mon_exp.v src/mon_prod.v cores/osdvu/uart.v
+	arachne-pnr outputs/test.blif -o outputs/test.asc -d 8k -p src/rsa_top.pcf 2>&1
+	cat outputs/test.log | grep Removed
+mem_upload: mem_place
+	icepack outputs/test.asc outputs/test.bin
+	iceprog outputs/test.bin
+
+upload:
 	iceprog outputs/test.bin
 
 

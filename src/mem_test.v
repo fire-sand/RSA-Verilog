@@ -116,7 +116,7 @@ module top(
     .DBITS(DBITS),
   )mp (
     .clk(clk),
-    .start(stp_output_valid),
+    .start(1'b0),
     .e(e), // ^ e
     .e_idx(e_idx),
     .n(n),  // mod n
@@ -156,7 +156,7 @@ module top(
     .Ndiv4log2(BITLENdiv4log2),
   ) pts (
     .clk(clk),
-    .rx_valid(stop),
+    .rx_valid(n),
     .rx_bytes(ans),
     .is_transmitting(is_transmitting),
     .tx_byte(tx_byte),
