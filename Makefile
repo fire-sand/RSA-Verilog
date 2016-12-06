@@ -77,7 +77,7 @@ led_upload: setup
 uart_upload: uart_top
 	icepack outputs/test.asc outputs/test.bin
 	iceprog outputs/test.bin
-	screen /dev/ttyUSB1
+	#screen /dev/ttyUSB1
 
 
 rsa_place: setup

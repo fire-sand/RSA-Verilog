@@ -64,7 +64,7 @@ module parallel_to_serial (
         count = 0;
       end
     end
-    $display("count: %b", count);
+    //$display("count: %b", count);
   end
 
 endmodule

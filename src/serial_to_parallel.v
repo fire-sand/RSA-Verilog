@@ -95,7 +95,7 @@ module serial_to_parallel (
 
 
       // $display("addr 0 should be %x", wr_data);
-      if (count[Ndiv4log2-1]) begin
+      if (count == Ndiv4log2) begin
         count = 0;
         case (state)
           RX_XBAR: begin

@@ -28,10 +28,9 @@ module top(
 	LED3,
 	LED4
 	);
-	parameter N = 32;
-	parameter Ndiv4log2 = 3;
-	parameter bitLen = 64; //
-  parameter log2BitLendiv4 = 4;
+	parameter N = 16;
+	parameter Ndiv4log2 = 2;
+	parameter bitLen = N; //
 
 	input clk;
 	input RS232_Rx_TTL;
