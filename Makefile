@@ -63,7 +63,7 @@ and_add_lut: setup
 #	rm -f outputs/test.blif outputs/test.txt
 #
 uart_top: setup
-	$(CC) $(CFLAGS) src/uart_test.v src/serial_to_parallel.v src/parallel_to_serial.v src/bram.v
+	$(CC) $(CFLAGS) src/uart_test.v src/serial_to_parallel.v src/parallel_to_serial.v src/bram.v src/mem_test.v
 	arachne-pnr outputs/test.blif -o outputs/test.asc -d 8k -p src/uart_test.pcf
 
 
@@ -98,6 +98,11 @@ mem_upload: mem_place
 
 upload:
 	iceprog outputs/test.bin
+screen:
+	screen /dev/ttyUSB1
+
+
+
 
 
 
