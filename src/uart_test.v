@@ -18,7 +18,7 @@
 `include "cores/osdvu/uart.v"
 //`default_nettype none
 
-module top2(
+module top(
 	clk,
 	RS232_Rx_TTL,
 	RS232_Tx_TTL,

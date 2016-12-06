@@ -64,7 +64,7 @@ and_add_lut: setup
 #
 uart_top: setup
 	$(CC) $(CFLAGS) src/uart_test.v src/serial_to_parallel.v src/parallel_to_serial.v src/bram.v
-	arachne-pnr outputs/test.blif -o outputs/test.asc -d 8k
+	arachne-pnr outputs/test.blif -o outputs/test.asc -d 8k -p src/uart_test.pcf
 
 
 led_upload: setup
