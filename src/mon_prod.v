@@ -112,7 +112,7 @@ module mon_prod (
           rd_addr <= 2; // there is a 2 clock cycle delay for read values, because of commiting of registers
           state <= LOADA1;
           stop <= 0;
-          P <= 1025'b0;
+          //P <= 1025'b0;
           count <= mp_count; // should be BITLEN if power of 2, otherwise next highest power of 2
         end
       end

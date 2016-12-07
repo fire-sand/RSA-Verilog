@@ -78,6 +78,8 @@ uart_upload: uart_top
 	icepack outputs/test.asc outputs/test.bin
 	iceprog outputs/test.bin
 	#screen /dev/ttyUSB1
+	sleep 2
+	python ../RSA-Python/shand.py
 
 
 rsa_place: setup
@@ -87,6 +89,7 @@ rsa_place: setup
 rsa_upload: rsa_place
 	icepack outputs/test.asc outputs/test.bin
 	iceprog outputs/test.bin
+	python ../RSA-Python/shand.py
 
 mem_place: setup
 	$(CC) $(CFLAGS) src/mem_test.v src/parallel_to_serial.v src/serial_to_parallel.v src/bram.v src/mon_exp.v src/mon_prod.v cores/osdvu/uart.v
@@ -98,12 +101,7 @@ mem_upload: mem_place
 
 upload:
 	iceprog outputs/test.bin
+	python ../RSA-Python/shand.py
 screen:
 	screen /dev/ttyUSB1
-
-
-
-
-
-
 

@@ -125,7 +125,6 @@ module mon_exp (
             //$display("e[%0d] = %0d", idx, e[idx]);
             $display("HELLO CALC: e[idx]: %d, idx %0d, CALC2?%0d",e[idx], idx,!(|idx));
             idx = (e[idx] && !(|idx)) ? idx : idx-1;
-
           end
             // if ei === 1: then do the next round, else if we are done go to stop
             // else do another round of calculation
