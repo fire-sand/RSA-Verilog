@@ -108,6 +108,10 @@ module mon_exp (
           //$display("e: %0b, idx: %0d", e, idx);
           //$display("e[%0d] = %0d", e_idx, e[e_idx]);
           mp_start <= 1'b1;
+          // TODO fix me
+          //op_code = OPX1;
+          //mp_start = 1;
+          //state = END;
         end
       end
       CALC: begin

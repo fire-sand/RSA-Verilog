@@ -3,7 +3,6 @@ module top(
   clk,
   RS232_Rx,
   RS232_Tx,
-  rst,
   LED1,
   LED2,
   LED3,
@@ -16,20 +15,25 @@ module top(
   //parameter BITLEN = 512;
   //parameter BITLENdiv4log2 = 7;
   //parameter LOG_BITLEN = 9;
-  //parameter ABITS = 8, DBITS = 512;
+  //parameter ABITS = 8, DBITS = BITLEN;
 
   //parameter BITLEN = 256;
   //parameter BITLENdiv4log2 = 6;
   //parameter LOG_BITLEN = 8;
-  //parameter ABITS = 8, DBITS = 256;
+  //parameter ABITS = 8, DBITS = BITLEN;
 
   parameter BITLEN = 16;
   parameter BITLENdiv4log2 = 2;
   parameter LOG_BITLEN = 4;
-  parameter ABITS = 8, DBITS = 16;
+  parameter ABITS = 8, DBITS = BITLEN;
+
+  //parameter BITLEN = 32;
+  //parameter BITLENdiv4log2 = 3;
+  //parameter LOG_BITLEN = 5;
+  //parameter ABITS = 8, DBITS = BITLEN;
 
   input clk;
-  input rst;
+  wire rst = 0;
   input RS232_Rx;
   output RS232_Tx;
   output LED1;

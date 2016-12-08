@@ -36,6 +36,8 @@ module mon_prod (
   localparam  LOADB1 = 2;
   localparam  CALC = 3;
   localparam  STORE1 = 4;
+  localparam  STORE2 = 5;
+  localparam  STORE3 = 6;
 
   localparam OPXX = 2'd0;
   localparam OPXM = 2'd1;
@@ -112,8 +114,12 @@ module mon_prod (
           rd_addr <= 2; // there is a 2 clock cycle delay for read values, because of commiting of registers
           state <= LOADA1;
           stop <= 0;
-          //P <= 1025'b0;
-          count <= mp_count; // should be BITLEN if power of 2, otherwise next highest power of 2
+          P <= {BITLEN+1 {1'b0}};
+          // TODO for real life it should be mp_count-1
+          //count <= mp_count; // should be BITLEN if power of 2, otherwise next highest power of 2
+          //TODO for fake life it should be mp_count
+          count <= mp_count-1; // should be BITLEN if power of 2, otherwise next highest power of 2
+          $display("mp_count: %0d", mp_count);
         end
       end
 
@@ -149,6 +155,7 @@ module mon_prod (
       //end
 
       CALC: begin
+
         //$display("Calc2> A: %0d, B: %0d, M: %0d", A, B, M);
 
         //$display("big_mult: %0d", A);
@@ -169,14 +176,13 @@ module mon_prod (
           P_norm = P - n;
           P = P_norm[BETALEN + BITLEN - 1] ? P : P_norm;
           //$display("CALC_END: %0d", P);
-          state <= STORE1;
-          wr_data <= P[DBITS-1:0];
-          wr_en <= 1'b1;
-          wr_addr <= 0;
+          state = STORE1;
+          wr_data = P[DBITS-1:0];
+          wr_en = 1'b1;
+          wr_addr = 0;
           //$display("wr_addr: %0d", wr_addr);
-        end else begin
-          state <= CALC;
         end
+        // else it will stay at calc
       end
 
       //STORE1: begin
@@ -191,7 +197,18 @@ module mon_prod (
         wr_en <= 1'b0;
         state <= IDLE;
         stop <= 1;
+        //state <= STORE2;
       end
+
+      //STORE2: begin
+        //state <= STORE3;
+      //end
+
+      //STORE3: begin
+        ////P <= rd_data;
+        //state <= IDLE;
+        //stop <= 1;
+      //end
     endcase
   end
 endmodule
