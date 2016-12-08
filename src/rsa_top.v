@@ -17,20 +17,20 @@ module top(
   //parameter LOG_BITLEN = 9;
   //parameter ABITS = 8, DBITS = BITLEN;
 
-  //parameter BITLEN = 256;
-  //parameter BITLENdiv4log2 = 6;
-  //parameter LOG_BITLEN = 8;
-  //parameter ABITS = 8, DBITS = BITLEN;
+  parameter BITLEN = 256;
+  parameter BITLENdiv4log2 = 6;
+  parameter LOG_BITLEN = 8;
+  parameter ABITS = 8, DBITS = BITLEN;
 
   //parameter BITLEN = 16;
   //parameter BITLENdiv4log2 = 2;
   //parameter LOG_BITLEN = 4;
   //parameter ABITS = 8, DBITS = BITLEN;
 
-  parameter BITLEN = 32;
-  parameter BITLENdiv4log2 = 3;
-  parameter LOG_BITLEN = 5;
-  parameter ABITS = 8, DBITS = BITLEN;
+  //parameter BITLEN = 32;
+  //parameter BITLENdiv4log2 = 3;
+  //parameter LOG_BITLEN = 5;
+  //parameter ABITS = 8, DBITS = BITLEN;
 
   input clk;
   wire rst = 0;
