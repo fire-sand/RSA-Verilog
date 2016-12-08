@@ -107,7 +107,7 @@ mem_upload: mem_place
 
 upload:
 	iceprog outputs/test.bin
-	python ../RSA-Python/shand.py
+	#python ../RSA-Python/shand.py
 screen:
 	screen /dev/ttyUSB1
 
