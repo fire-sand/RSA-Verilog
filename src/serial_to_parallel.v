@@ -36,7 +36,7 @@ module serial_to_parallel (
   output reg [Nlog2-1:0] tx_e_idx;
   output reg [Nlog2-1:0] tx_mp_count;
   output reg [N-1:0] tx_e;
-  output reg [N-1:0] tx_bytes; // tx_n
+  output reg [N-1:0] tx_bytes = 0; // tx_n
   output reg tx_valid;
   output reg [DBITS-1:0] wr_data;
   output reg [ABITS-1:0] wr_addr;
@@ -52,8 +52,6 @@ module serial_to_parallel (
   wire [N-1:0] shifted;
   wire [N-1:0] ored;
   // can always do this calculation
-  assign shifted = tx_bytes << 4'd8;
-  assign ored = shifted | rx_byte;
   // if it is valid then assign it to the register
 
   always @(posedge clk) begin
@@ -70,7 +68,7 @@ module serial_to_parallel (
       // $display("shifted: %x", shifted);
       //$display("ored: %x", ored);
       // $display("tx_bytes: %x", tx_bytes);
-      tx_bytes = ored;
+      tx_bytes = {tx_bytes[N-8:0], rx_byte};
       // $display("tx_bytes: %x", tx_bytes);
       // $display("tx_bytes: %x", tx_bytes);
       // $display("tx_valid: %x", tx_valid);
@@ -81,21 +79,21 @@ module serial_to_parallel (
       case (state)
         RX_MP_COUNT: begin
           $display("RX_MP_COUNT");
-          tx_mp_count <= rx_byte;
-          state <= RX_E_IDX;
-          count <= 0;
+          tx_mp_count = rx_byte;
+          state = RX_E_IDX;
+          count = 0;
         end
         RX_E_IDX: begin
           $display("RX_E_IDX");
-          tx_e_idx <= rx_byte;
-          state <= RX_XBAR;
-          count <= 0;
+          tx_e_idx = rx_byte;
+          state = RX_XBAR;
+          count = 0;
         end
       endcase
 
 
       // $display("addr 0 should be %x", wr_data);
-      if (count == Ndiv4log2) begin
+      if (count[Ndiv4log2-1]) begin
         count = 0;
         case (state)
           RX_XBAR: begin

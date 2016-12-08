@@ -16,7 +16,8 @@ module memtest (
   localparam IDLE = 0;
   localparam RECV = 1;
   localparam SEND = 2;
-  localparam END = 3;
+  localparam SEND2 = 3;
+  localparam END = 4;
 
   input clk;
   input start;
@@ -34,13 +35,16 @@ module memtest (
         if(start) begin
           rd_addr = 2;
           state = RECV;
+          out <= rd_data;
         end
       end
       RECV: begin
         state <= SEND;
       end
       SEND: begin
-        out <= rd_data;
+        state <= SEND2;
+      end
+      SEND2: begin
         stop <= 1;
         state <= END;
       end

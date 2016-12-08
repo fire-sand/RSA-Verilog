@@ -116,9 +116,9 @@ module mon_prod (
           stop <= 0;
           P <= {BITLEN+1 {1'b0}};
           // TODO for real life it should be mp_count-1
-          //count <= mp_count; // should be BITLEN if power of 2, otherwise next highest power of 2
+          count <= mp_count; // should be BITLEN if power of 2, otherwise next highest power of 2
           //TODO for fake life it should be mp_count
-          count <= mp_count-1; // should be BITLEN if power of 2, otherwise next highest power of 2
+          //count <= mp_count-1; // should be BITLEN if power of 2, otherwise next highest power of 2
           $display("mp_count: %0d", mp_count);
         end
       end

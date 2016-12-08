@@ -7,7 +7,13 @@ setup:
 
 serial_to_parallel: setup
 	iverilog -o outputs/serial_to_prallel_tb.out src/serial_to_parallel.v src/serial_to_parallel_tb.v src/bram.v src/mon_exp.v src/mon_prod.v src/parallel_to_serial.v
-	outputs/serial_to_prallel_tb.out
+	./outputs/serial_to_prallel_tb.out
+
+serial_to_parallel_32: setup
+	iverilog -o outputs/serial_to_prallel_tb.out src/serial_to_parallel.v src/serial_to_parallel_32_tb.v src/bram.v src/mon_exp.v src/mon_prod.v src/parallel_to_serial.v
+	./outputs/serial_to_prallel_tb.out
+
+
 
 parallel_to_serial: setup
 	iverilog -o outputs/parallel_to_serial_tb.out src/parallel_to_serial.v src/parallel_to_serial_tb.v

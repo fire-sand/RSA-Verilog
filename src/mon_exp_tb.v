@@ -3,7 +3,7 @@
 
 module mon_exp_tb();
 
-parameter bitLen = 1024;
+parameter bitLen = 512;
 parameter ABITS = 8, DBITS = 512;
 
 reg clk = 0;

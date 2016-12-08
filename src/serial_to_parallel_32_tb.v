@@ -17,6 +17,8 @@ parameter BITLENdiv4log2 = 2;
 parameter LOG_BITLEN = 4;
 parameter ABITS = 8, DBITS = 16;
 
+
+
 //-- Clock signal. It is not used in this simulation
 reg clk = 0;
 always #10 clk = ~clk; // invert clock every 10 ns
