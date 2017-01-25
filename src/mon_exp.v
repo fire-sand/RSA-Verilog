@@ -19,7 +19,7 @@ module mon_exp (
 
   parameter  BITLEN = 256;
   parameter  LOG_BITLEN = 8;
-  parameter ABITS = 8, DBITS = 256;
+  parameter ABITS = 8, DBITS = BITLEN;
 
   localparam  IDLE = 3'b0;
   localparam  CALC = 3'b1;
