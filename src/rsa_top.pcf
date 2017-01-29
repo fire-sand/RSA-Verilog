@@ -1,6 +1,8 @@
 
-set_io RS232_Tx B12 # 13
-set_io RS232_Rx B10 # 14
+#set_io RS232_Tx B12 # 13
+#set_io RS232_Rx B10 # 14
+set_io RS232_Tx P1 # 13
+set_io RS232_Rx P2  # 14
 
 ###IOSet List 9
 set_io LED3 A2
@@ -16,7 +18,5 @@ set_io LED1 B5
 
 set_io clk J3
 
-set_io p0 P1
-set_io p1 P2
-set_io p2 T10
-set_io p3 T11
+#set_io p0 P1
+#set_io p1 P2
