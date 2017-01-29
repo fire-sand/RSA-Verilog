@@ -7,6 +7,10 @@ module top(
   LED2,
   LED3,
   LED4,
+  p0,
+  p1,
+  p2,
+  p3
   );
 
   //TODO add a transmitting so that this module cant be interrupted while
@@ -40,6 +44,15 @@ module top(
   output LED2;
   output LED3;
   output LED4;
+  output p0;
+  output p1;
+  output p2;
+  output p3;
+
+  assign p0 = 1'b1;
+  assign p1 = 1'b1;
+  assign p2 = 1'b1;
+  assign p3 = 1'b1;
 
   // UART wires
   wire transmit;

@@ -15,3 +15,8 @@ set_io LED1 B5
 #set_io rst P16
 
 set_io clk J3
+
+set_io p0 P1
+set_io p1 P2
+set_io p2 T10
+set_io p3 T11
