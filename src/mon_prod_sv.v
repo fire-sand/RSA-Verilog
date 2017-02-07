@@ -15,7 +15,7 @@
 //    - OPX1 = 2, P = x_bar * 1 mod m
 //////
 
-module mon_prod (
+module mon_prod_sv (
   clk,
   start,
   op_code,
@@ -89,8 +89,7 @@ module mon_prod (
   // reg [`BETALEN-1:0] qt;
   reg [9:0] count;
   reg [`BITLEN + `BETALEN - 1:0] P_norm;
-  reg [`BITLEN + `BETALEN - 1:0] P_mid;
-  reg [`BITLEN + `BETALEN - 1:0] P_mid2;
+  initial P_norm = 1025'b0;
 
 
   assign a0 = A[`BETALEN-1:0];
@@ -104,7 +103,17 @@ module mon_prod (
   assign calc_end = !(| count); // stop = 1 if count is 0
 
 
+  reg [`BITLEN-1:0] big_mult;
+  initial big_mult = `BITLEN'b0;
   reg [`BETALEN-1:0] small_mult;
+  initial small_mult = `BETALEN'b0;
+  wire [`BITLEN+`BETALEN-1:0] mult_out;
+
+  shift_add_mult2 sam1 (
+      .A(big_mult),
+      .B(small_mult),
+      .P(mult_out)
+      );
 
   always @(posedge clk) begin
     // $display("mon_prod start: %d", start);
@@ -154,22 +163,55 @@ module mon_prod (
       end
 
       CALC: begin
+        //$display("--Calc--");
 
-        $display("big_mult: %0d", A);
-        $display("small_mult: %0d", (B[`BETALEN-1:0]));
-        P_mid =  (B[`BETALEN-1:0]) ? (A + P) :  P;
-
-        small_mult = (mu * (a0 * B[`BETALEN-1:0] + P[`BETALEN-1:0]));
-        $display("big_mult: %0d", M);
-        $display("small_mult: %0d", small_mult);
-        P_mid2 = small_mult ? (P_mid + M) : P_mid;
+        // To calculate A * bt for next cycle
+        big_mult = A;
+        small_mult = B[`BETALEN-1:0];
         B = {B_cat, B[`BITLEN-1:`BETALEN]};
-        P = P_mid2 >> `BETALEN;
-        count = count - 1;
+        // $display("smal_mult set to : %d", small_mult);
 
-        $display("P: %0d", P);
+        state = CALC1;
+      end
+
+      CALC1: begin
+        // $display("--Calc1--");
+
+        // $display("big_mult: %0d", big_mult);
+        // $display("small_mult: %0d", small_mult);
+
+        // To calculate M * qt for next cycle
+        // This is the new qt, only `BETA bit multiplication
+        // $display("Mu: %0d, a0: %0d, small_mult %0d, P: %0d", mu, a0, small_mult, P[`BETALEN-1:0]);
+        small_mult = (mu * (a0 * small_mult + P[`BETALEN-1:0]));
+        big_mult = M;
+        // $display("smal_mult set to : %d", small_mult);
+        // mult_out is A * bt
+        P = mult_out + P;
+
+        state = CALC2;
+      end
+
+      CALC2: begin
+        // $display("--Calc2--");
+
+        // These are set in the previous cycle (CALC1)
+        // $display("big_mult: %0d", big_mult);
+        // $display("small_mult: %0d", small_mult);
+
+        // mult_out is M * qt
+        P = (P + mult_out) >> `BETALEN;
+        // P = (A_bt + M_qt + {`BETALEN'd0, P}) >> `BETALEN; // TODO need to split up over multiple clocks
+        // $display("P: %0d", P);
+
+        count = count - 1;
+        // $display("count: %0d", count);
 
         if (calc_end) begin
+          // TODO need to fix this so the real stop does not go high until P is
+          // done being stored in memory, the real stop can be if we in IDLE state
+          // Can we avoid this subtraction?!
+          // TODO make a new P_norm to be used only for writing back to mem
           P_norm = P - M;
           P = P_norm[`BETALEN + `BITLEN - 1] ? P : P_norm;
           $display("CALC_END: %0d", P);

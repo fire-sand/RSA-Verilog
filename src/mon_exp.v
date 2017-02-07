@@ -1,13 +1,11 @@
 `default_nettype none
 
-`define BITLEN 1024
-`define log_BITLEN 10
 module mon_exp (
   clk,
   start,
   e,
   e_idx,
-  M, // modulus
+  n, // modulus
   mp_count,
   op_code,
   rd_addr,
@@ -19,6 +17,10 @@ module mon_exp (
   ans
   );
 
+  parameter  BITLEN = 256;
+  parameter  LOG_BITLEN = 8;
+  parameter ABITS = 8, DBITS = BITLEN;
+
   localparam  IDLE = 3'b0;
   localparam  CALC = 3'b1;
   localparam  CALC1 = 3'd2;
@@ -29,14 +31,13 @@ module mon_exp (
   localparam OPXM = 2'd1;
   localparam OPX1 = 2'd2;
 
-  parameter ABITS = 8, DBITS = 512;
 
   input clk;
   input start;
-  input [`BITLEN-1:0] e;
-  input [`log_BITLEN-1:0] e_idx;
-  input [`BITLEN-1:0] M;
-  input [9:0] mp_count;
+  input [BITLEN-1:0] e;
+  input [LOG_BITLEN-1:0] e_idx;
+  input [BITLEN-1:0] n;
+  input [LOG_BITLEN:0] mp_count;
   input [DBITS-1:0] rd_data;
 
   output reg [1:0] op_code;
@@ -44,28 +45,34 @@ module mon_exp (
   output [DBITS-1:0] wr_data;
   output [ABITS-1:0] wr_addr;
   output wr_en;
-  output [`BITLEN-1:0] ans;
+  output [BITLEN-1:0] ans;
   output reg stop;
   initial stop = 1'b0;
 
-  //reg [`BITLEN-1:0] reg_e;
+  reg old_stop;
+
+  //reg [BITLEN-1:0] reg_e;
   reg mp_start;
   reg old_mp_start;
   initial mp_start = 0;
   initial old_mp_start = 0;
   wire mp_stop;
   reg old_mp_stop;
-  reg [`BITLEN-1:0] mp_M;
   reg [2:0] state;
   initial state = IDLE;
 
-  reg [`log_BITLEN-1:0] idx;
+  reg [LOG_BITLEN-1:0] idx;
 
-  mon_prod mp (
+  mon_prod #(
+    .BITLEN(BITLEN),
+    .LOG_BITLEN(LOG_BITLEN),
+    .ABITS(ABITS),
+    .DBITS(DBITS)
+  ) mp (
     .clk(clk),
     .start(mp_start),
     .op_code(op_code),
-    .M(M),
+    .n(n),
     .mp_count(mp_count),
     .rd_addr(rd_addr),
     .rd_data(rd_data),
@@ -84,20 +91,27 @@ module mon_exp (
     if (old_mp_start && mp_start) begin
       mp_start = 0;
     end
+    if (stop && old_stop) begin
+      stop = 0;
+    end
     old_mp_start = mp_start;
     // $display("new");
     case (state)
       IDLE: begin
         if (start) begin
-          //$display("exp IDLE: e_idx: %0d,  e: %0b", e_idx, e);
+          $display("exp IDLE: e_idx: %0d,  e: %0b", e_idx, e);
 
           //$display(" %0d * %0d mod %0d", x_bar, x_bar, n);
           op_code <= OPXX;
           idx = e_idx-1;
           state = e[e_idx] ? CALC1 : CALC;
-          $display("e: %0b, idx: %0d", e, idx);
-          $display("e[%0d] = %0d", e_idx, e[e_idx]);
+          //$display("e: %0b, idx: %0d", e, idx);
+          //$display("e[%0d] = %0d", e_idx, e[e_idx]);
           mp_start <= 1'b1;
+          // TODO fix me
+          //op_code = OPX1;
+          //mp_start = 1;
+          //state = END;
         end
       end
       CALC: begin
@@ -112,10 +126,9 @@ module mon_exp (
             mp_start = 1;
           //  reg_e = reg_e >> 1;
             state = e[idx] ? CALC1: !(|idx) ? CALC2 : CALC;
-            $display("e[%0d] = %0d", idx, e[idx]);
-            // $display("HELLO state: %0d, e[idx]: %d, idx", state, e[idx], idx);
-            idx = idx-1;
-
+            //$display("e[%0d] = %0d", idx, e[idx]);
+            $display("HELLO CALC: e[idx]: %d, idx %0d, CALC2?%0d",e[idx], idx,!(|idx));
+            idx = (e[idx] && !(|idx)) ? idx : idx-1;
           end
             // if ei === 1: then do the next round, else if we are done go to stop
             // else do another round of calculation
@@ -130,6 +143,7 @@ module mon_exp (
 
           mp_start = 1;
           state = !(|idx) ? CALC2 : CALC;
+          $display("done? %d, %d", !(|idx), idx);
           // $display("state: %0d", state);
         end
       end
@@ -139,7 +153,7 @@ module mon_exp (
           op_code = OPX1;
           mp_start = 1;
           state = END;
-          // $display("exp CALC2");
+          $display("exp CALC2");
         end
       end
 
@@ -147,11 +161,12 @@ module mon_exp (
         if(mp_stop && !old_mp_stop) begin
           stop <= 1'b1;
           mp_start = 1'b0;
-          // $display("END");
+           $display("END");
           state <= IDLE;
         end
       end
     endcase
     old_mp_stop = mp_stop;
+    old_stop = stop;
   end
 endmodule
