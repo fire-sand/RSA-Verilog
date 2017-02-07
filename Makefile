@@ -90,12 +90,13 @@ uart_upload: uart_top
 
 rsa_place: setup
 	$(CC) $(CFLAGS) src/rsa_top.v src/parallel_to_serial.v src/serial_to_parallel.v src/bram.v src/mon_exp.v src/mon_prod.v cores/osdvu/uart.v
-	arachne-pnr outputs/test.blif -o outputs/test.asc -d 8k -p src/rsa_top.pcf 2>&1
-	cat outputs/test.log | grep Removed
+	arachne-pnr outputs/test.blif -o outputs/test.asc -d 8k -p src/rsa_top.pcf \
+		2>&1 | grep -e 'LCs' -e 'BRAM' -e 'LUT'
+
 rsa_upload: rsa_place
 	icepack outputs/test.asc outputs/test.bin
 	iceprog outputs/test.bin
-	python ../RSA-Python/shand.py
+	#python ../RSA-Python/shand.py
 
 mem_place: setup
 	$(CC) $(CFLAGS) src/mem_test.v src/parallel_to_serial.v src/serial_to_parallel.v src/bram.v src/mon_exp.v src/mon_prod.v cores/osdvu/uart.v
